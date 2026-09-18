@@ -1,20 +1,20 @@
 # Vision Harness
 
-**让 Coding Agent 在长期开发中始终看得见完整目标，并让每一次局部实现都朝 Vision 收敛。**
+**让 编程 Agent 在长期开发中始终看得见完整目标，并让每一次局部实现都朝项目愿景收敛。**
 
-Vision Harness 是一套面向 AI Coding Agent 的软件工程方法，通过 Plugin / Skills 融入现有 Coding Agent 工作环境。
+Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Plugin / Skill 融入现有 编程 Agent 工作环境。
 
 它不是新的项目管理平台，也不是一套要求你手工维护大量文档的流程。它主要做三件事：
 
 1. 在 Agent 开始局部实现前，让它先理解完整目标和当前工作的位置；
 2. 在实现过程中，让它根据实际变化选择需要的 Spec、架构判断、TDD 和质量验证；
-3. 在长期开发中，让新的 Session 能重新恢复上下文，并定期检查系统是否已经偏离 Vision。
+3. 在长期开发中，让新的会话 能重新恢复上下文，并定期检查系统是否已经偏离项目愿景。
 
 项目的完整愿景见 [VISION.md](VISION.md)，详细方法规则见 [METHOD.md](METHOD.md)。
 
 ## 它解决什么问题
 
-假设你告诉 Coding Agent：
+假设你告诉 编程 Agent：
 
 > 给任务执行增加自动重试。
 
@@ -43,7 +43,7 @@ Agent：
 
 暂不实施：
 - 指数退避 → 已记录到后续 Issue
-- 分布式调度 → 已记录到后续 Capability
+- 分布式调度 → 已记录到后续 能力
 
 这个变化会修改任务状态语义，因此我会先更新对应 Spec；
 现有系统边界不变，不需要新的架构决策。
@@ -59,18 +59,18 @@ Agent：
 ```text
 帮我启动这个项目。
 
-Vision：
+项目愿景：
 让团队可以安全地运行和评估 AI Agent。
 ```
 
 Vision Harness 应指导 Agent：
 
 ```text
-理解 Vision
+理解项目愿景
   ↓
 确认主要目标、边界和未知
   ↓
-建立主要 Milestones / Capabilities / Issues
+建立主要 Milestone、能力和 Issue
   ↓
 把暂不实现但已确认需要的能力留下可追踪 Issue
   ↓
@@ -93,9 +93,9 @@ Agent 不应机械重新跑一遍整个流程，而应读取当前事实：
 
 ```text
 #37 已经有：
-✓ Target State
-✓ Current Scope
-✓ Deferred Work
+✓ 目标状态
+✓ 当前范围
+✓ 暂缓工作
 ✓ 相关 Spec
 
 还缺：
@@ -115,15 +115,15 @@ Vision Harness 不建立自己的状态数据库。
 | 内容 | 放在哪里 |
 | --- | --- |
 | 项目最终目标 | `VISION.md` |
-| Roadmap / Milestone / 工作状态 | GitHub |
-| Capability / Feature / Deferred Work | GitHub Issues |
+| 路线图 / Milestone / 工作状态 | GitHub |
+| 能力 / 功能 / 暂缓工作 | GitHub Issues |
 | 长期行为规则 | `specs/` |
-| 当前长期架构 | `ARCHITECTURE.md` 或 architecture docs |
+| 当前长期架构 | `ARCHITECTURE.md` 或 架构文档 |
 | 重大长期技术决策的原因 | `docs/adr/` |
-| 一次变更的 Technical Plan | GitHub |
-| Tasks | GitHub Sub-issues |
-| 当前实现 | Code |
-| 可执行保证 | Tests / Schemas / Contracts |
+| 一次变更的 技术方案 | GitHub |
+| 任务 | GitHub 子 Issue |
+| 当前实现 | 代码 |
+| 可执行保证 | 测试 / Schema / Contract |
 
 同一件事只在一个地方维护，其他位置只引用。
 
@@ -154,7 +154,7 @@ Vision Harness 不建立自己的状态数据库。
 ```text
 Issue
   ↓
-确认目标、当前范围、边界和 Deferred
+确认目标、当前范围、边界和 暂缓工作
   ↓
 判断哪些长期行为或约束被改变
   ↓
@@ -162,42 +162,42 @@ Issue
   ↓
 判断是否影响长期架构
   ↓
-复杂变更需要时形成 Technical Plan
+复杂变更需要时形成 技术方案
   ↓
 按用户/系统可观察行为拆分
   ↓
-Red → Green → Refactor
+红灯 → 绿灯 → 重构
   ↓
 执行这次变化真正需要的质量验证
   ↓
-回到 Current Scope，确认没有遗漏
+回到 当前范围，确认没有遗漏
 ```
 
 如果只是内部重构，可能根本不需要修改 Spec。
 
 如果 API 行为、状态模型、权限或兼容保证发生变化，就需要先把新的长期语义说明清楚。
 
-如果技术选择会长期约束多个后续 Feature，才考虑记录 ADR。普通实现选择不需要。
+如果技术选择会长期约束多个后续 功能，才考虑记录 ADR。普通实现选择不需要。
 
-## 为什么 Tests 全绿还不一定完成
+## 为什么 测试 全绿还不一定完成
 
 测试只能证明已经写下来的行为通过了。
 
 如果 Spec 要求：
 
 ```text
-- 可以 timeout
-- timeout 后不能再次 completed
-- timeout 状态必须持久化
+- 可以超时
+- 超时后不能再次变成“已完成”
+- 超时状态必须持久化
 ```
 
 而 Agent 只写了前两项测试，那么所有测试都可以是绿色，但工作仍然少了一项。
 
-所以结束前，Agent 必须重新回到本次 Current Scope 和相关 Spec，检查是否真的覆盖完整承诺。
+所以结束前，Agent 必须重新回到本次 当前范围 和相关 Spec，检查是否真的覆盖完整承诺。
 
 ## Vision Harness 不做什么
 
-Vision Harness 不提供 Dashboard、可视化、Roadmap 数据库、自有 Issue Tracker 或自有 workflow state engine。
+Vision Harness 不提供 Dashboard、可视化、路线图数据库、自有 Issue 跟踪系统 或自有 工作流状态引擎。
 
 它也不要求所有项目生成相同的 Spec 文件，不会把每个技术选择都写成 ADR，也不会默认用“MVP”把完整目标缩成一个最小版本。
 
@@ -205,6 +205,6 @@ Vision Harness 不提供 Dashboard、可视化、Roadmap 数据库、自有 Issu
 
 ## 当前仓库状态
 
-这个仓库目前正在定义 Vision Harness 自身的方法和行为边界。Plugin / Skills 的具体实现应继续按照同一套方法，从完整目标出发规划并逐步实现，而不是由 README 虚构尚不存在的命令。
+这个仓库目前正在定义 Vision Harness 自身的方法和行为边界。Plugin / Skill 的具体实现应继续按照同一套方法，从完整目标出发规划并逐步实现，而不是由 README 虚构尚不存在的命令。
 
 因此，本文中的交互示例表示 Vision Harness 的**目标使用体验**，不是对当前已经可调用命令的声明。
