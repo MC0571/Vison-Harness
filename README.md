@@ -159,7 +159,7 @@ Vision Harness 不建立自己的状态数据库。同一种事实只维护一�
 | 审查方法 | 项目已有审查规范、Skill 或宿主支持的配置 |
 | 当前实现 | 代码 |
 | 可执行保证 | 测试 / Schema / Contract |
-| 一次审查、验收或授权记录 | 对应的 Issue、PR、Review 或项目既有载体 |
+| 一次审查、验收或授权记录 | 对应的 Issue、PR、审查记录或项目既有载体 |
 
 Vision Harness 默认不要求维护与 GitHub 平行的 `ROADMAP.md`、`tasks.md` 或自己的 `state.yaml`。已有项目中的纯导航、自动生成视图或明确非权威的摘要可以保留，只要它们不成为另一份需要手工同步的事实来源。
 
