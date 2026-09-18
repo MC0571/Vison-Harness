@@ -6,6 +6,8 @@
 
 Vision Harness 是一套面向 Agent 的软件工程方法论工具。它不替 Agent 决定产品要做什么，也不替项目保存另一套事实；它的职责是让 Agent 在从愿景到代码的整个生命周期中，始终理解完整目标、选择正确的方法、遵守必要的工程边界，并持续验证局部实现是否仍在推动整体 Vision。
 
+Vision Harness 以 Plugin / Skills 的形式融入现有 Coding Agent 工作环境，将方法原则转化为可发现、可执行、可验证的指导与检查，而不建立独立的项目管理平台。
+
 最终，我们希望一个 Agent 在任何时刻进入项目，都能够回答：
 
 - 我们最终想构建什么？
@@ -44,6 +46,8 @@ Vision Harness 的目标不是用更多文档解决这些问题，而是通过�
 
 远期工作可以保持较低分辨率，近期工作逐步细化；但当前没有实现的能力不能因此从 Agent 的世界模型中消失。
 
+这里的“完整”以当前 Vision、已知目标和明确边界为依据，并不意味着消灭所有未知。已确认的目标、待验证的假设和尚未解决的问题必须被区分；未知应被显式保留，而不是被 Agent 擅自补成确定需求。探索性工作可以用于降低不确定性，但其结果不能未经正式的规格与验收判断，就被默认视为正式实现。
+
 **完整的是目标和结构，渐进的是实现细节。**
 
 ---
@@ -81,9 +85,10 @@ Agent 应先完整理解本次需要满足的系统语义，再针对一个明�
 
 因此：
 
-- Spec 决定完整 Scope；
+- GitHub Work Graph 承载目标展开与本次工作的范围决策；
+- Spec 精确定义该范围涉及的系统行为与约束；
 - TDD 控制实现增量；
-- Tests 证明已实现行为的正确性，但不能定义完整 Scope。
+- Tests 证明已实现行为的正确性，但不能反向定义交付范围。
 
 ---
 
@@ -148,7 +153,8 @@ Vision Harness 应覆盖从项目启动到长期演进的完整方法闭环，�
 8. 将实现拆成 behavioral slices，而不是机械的技术层任务；
 9. 在每个 slice 内执行 TDD：Red → Green → Refactor；
 10. 根据变化触发必要的 Security、Reliability、Performance、Compatibility、Observability、Migration 等质量验证；
-11. 在关闭工作前重新检查完整语义覆盖和所有已知 gap。
+11. 在关闭工作前重新检查完整语义覆盖和所有已知 gap；
+12. 区分行为验收、交付验证与目标效果验证，并将交付、使用和运行中产生的 Evidence 反馈到相关工作节点与整体规划。
 
 ---
 
@@ -253,7 +259,7 @@ TDD 是实施方法，不是 Scope 发现方法。
 
 Vision Harness 使用两层反馈：
 
-- 外层由 Spec 定义完整 behavioral scope 和 acceptance；
+- 外层依据 Issue 的 Current Scope 和相关 Spec，确定本次必须满足的 behavioral guarantees 与 acceptance；
 - 内层针对 behavioral slice 执行 Red → Green → Refactor。
 
 Refactor 不只检查代码整洁度，还应检查：
@@ -279,7 +285,7 @@ Agent 不应该机械地从流程第一步重新执行，而应该从 canonical 
 - 当前真正缺少什么；
 - 下一步应该使用哪一种方法。
 
-重复执行同一方法时，应读取现状、识别 gap、只补足缺口，而不是覆盖已经成立的事实。
+在相同事实和相同意图下，重复执行同一方法不应产生重复节点、重复工件或无意义变更；当事实或决策发生变化时，应有依据地更新、合并、拆分或移除既有工作，而不是机械保留旧结论。
 
 Vision Harness 自身不得创建权威的 `state.yaml`、`progress.json`、Roadmap store 或其他平行状态系统。
 
@@ -300,6 +306,10 @@ Vision Harness 的价值不仅是给出建议，还在于阻止 Agent 在关键�
 - Vision Coverage / System Convergence Review。
 
 Gate 是判断规则和可验证条件，不是新的状态文档。
+
+Gate 必须依据与当前变更相匹配的可核验证据作出判断。证据缺失、相互冲突或无法验证时，不得默认通过；应明确缺口，并转入调查、补充验证或请求决策。不得通过静默缩小 Current Scope、降低质量要求或修改验收条件来使 Gate 通过。
+
+目标、范围和质量承诺的变更必须依据明确的授权或决策规则，不能由执行 Agent 为完成当前任务自行改写。
 
 ---
 
@@ -338,6 +348,10 @@ Vision Harness **不是**：
 - 一系列局部正确的变更不会在缺少整体检查的情况下持续侵蚀系统；
 - 新 Agent、新 Session 或新的 Coding Environment 能重新从项目事实中恢复完整的方法上下文；
 - 随着实现推进，系统能够通过 Evidence 和 Convergence 不断修正 Work Graph，并持续接近 VISION。
+
+Vision Harness 自身必须接受 Agent 行为评估。评估关注 Agent 在代表性场景和失败场景中的实际决策、操作与结果，而不只检查文档是否生成、Skill 是否加载或 Agent 是否声明遵守流程。方法有效性的判断应建立在可复查的行为证据上。
+
+行为验收、交付结果和目标效果应被区分。完成一次实现，不等于已经证明其上层假设成立；后续 Evidence 应能够反向修正 Work Graph、Spec、Architecture 或 Vision 解释中的错误认知。
 
 Vision Harness 最终要实现的不是“让 Agent 遵守更多流程”，而是：
 
