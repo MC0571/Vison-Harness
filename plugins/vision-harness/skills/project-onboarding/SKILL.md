@@ -5,7 +5,7 @@ description: Help a new or existing project adopt Vision Harness by identifying 
 
 # Project Onboarding
 
-Use this entry when a project is new to the method or when the user asks whether an existing project needs to be connected. The result is a gap assessment and, when explicitly authorized, the smallest useful changes. It is not a template generator.
+Use this entry when a project is new to the method or when the user asks whether an existing project needs to be connected. Read the [project-context behavior rules](../../references/project-context-behavior.md) and [shared operating rules](../../references/shared-rules.md) before assessing gaps. The result is a gap assessment and, when explicitly authorized, the smallest useful changes. It is not a template generator.
 
 ## Inspect before changing
 

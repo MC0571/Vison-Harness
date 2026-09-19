@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import re
 import shutil
+import tempfile
 from pathlib import Path
 
 
@@ -25,14 +26,14 @@ REFERENCE_SECTIONS = {
     "shared-rules.md": (
         ROOT / "METHOD.md",
         (
-            "## 1. ",
-            "## 3. ",
-            "## 5. ",
-            "## 6. ",
-            "## 8. ",
-            "## 10. ",
-            "## 11. ",
-            "## 12. ",
+            "## 1. 先确认本轮任务和授权",
+            "## 3. 保留完整目标，但明确本次交付",
+            "## 5. 正确读取和安全修改项目事实",
+            "## 6. 维护 Agent 工作约定和审查规则",
+            "## 8. 用 TDD 实施，同时抑制没有依据的复杂度",
+            "## 10. 用适用证据判断完成和交付",
+            "## 11. 根据新事实继续、调整或停止",
+            "## 12. 方法必须同时防止草率和过度治理",
         ),
     ),
     "vision-behavior.md": (
@@ -92,9 +93,23 @@ def read_text(path: Path) -> str:
 
 def selected_sections(source: Path, headings: tuple[str, ...]) -> str:
     lines = read_text(source).splitlines()
+    configured = list(headings)
+    if len(configured) != len(set(configured)):
+        raise ValueError(f"duplicate configured section in {source}")
+
+    actual_headings = [line for line in lines if line.startswith("## ")]
+    for heading in configured:
+        matches = [line for line in actual_headings if line == heading]
+        if not matches:
+            candidates = [line for line in actual_headings if line.startswith(heading)]
+            detail = f"; similar headings: {candidates}" if candidates else ""
+            raise ValueError(f"configured section must match exactly in {source}: {heading}{detail}")
+        if len(matches) > 1:
+            raise ValueError(f"duplicate source section in {source}: {heading}")
+
     selected: list[str] = []
     current: list[str] = []
-    wanted = set(headings)
+    wanted = set(configured)
 
     def flush() -> None:
         if current:
@@ -103,7 +118,7 @@ def selected_sections(source: Path, headings: tuple[str, ...]) -> str:
     for line in lines:
         if line.startswith("## "):
             flush()
-            current = [line] if any(line.startswith(prefix) for prefix in wanted) else []
+            current = [line] if line in wanted else []
             continue
         if current:
             current.append(line)
@@ -144,11 +159,11 @@ def write_utf8(path: Path, content: str) -> None:
     path.write_text(content.rstrip("\n") + "\n", encoding="utf-8", newline="\n")
 
 
-def assemble() -> None:
-    if not PLUGIN.is_dir():
-        raise SystemExit(f"missing plugin scaffold: {PLUGIN}")
+def assemble(destination: Path = PLUGIN) -> None:
+    if not destination.is_dir():
+        raise SystemExit(f"missing plugin destination: {destination}")
 
-    generated_dirs = (PLUGIN / "skills", PLUGIN / "references")
+    generated_dirs = (destination / "skills", destination / "references")
     for directory in generated_dirs:
         if directory.exists():
             shutil.rmtree(directory)
@@ -163,17 +178,17 @@ def assemble() -> None:
             content = content.replace(old, new)
         if "../../../" in content or "../../../../" in content:
             raise ValueError(f"unconverted source path in {source}")
-        write_utf8(PLUGIN / "skills" / skill_name / "SKILL.md", content)
+        write_utf8(destination / "skills" / skill_name / "SKILL.md", content)
 
     for filename, (source, headings) in REFERENCE_SECTIONS.items():
-        write_utf8(PLUGIN / "references" / filename, runtime_reference(filename, source, headings))
+        write_utf8(destination / "references" / filename, runtime_reference(filename, source, headings))
 
-    shutil.copyfile(ROOT / "LICENSE", PLUGIN / "LICENSE")
-    assert_package_links()
+    shutil.copyfile(ROOT / "LICENSE", destination / "LICENSE")
+    assert_package_links(destination)
 
 
-def assert_package_links() -> None:
-    for path in sorted(PLUGIN.rglob("*.md")):
+def assert_package_links(package: Path = PLUGIN) -> None:
+    for path in sorted(package.rglob("*.md")):
         text = read_text(path)
         if "../../../" in text or "../../../../" in text:
             raise ValueError(f"package path escapes root: {path}")
@@ -185,26 +200,43 @@ def assert_package_links() -> None:
                 raise ValueError(f"broken package link in {path}: {target}")
 
 
-def snapshot() -> dict[str, str]:
+def snapshot(package: Path = PLUGIN) -> dict[str, str]:
     paths = sorted(
         path
-        for path in PLUGIN.rglob("*")
+        for path in package.rglob("*")
         if path.is_file() and ".git" not in path.parts
     )
     return {
-        str(path.relative_to(PLUGIN)): hashlib.sha256(path.read_bytes()).hexdigest()
+        str(path.relative_to(package)): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in paths
     }
 
 
-def check_idempotent() -> None:
-    assemble()
-    first = snapshot()
-    assemble()
-    second = snapshot()
-    if first != second:
-        raise SystemExit("plugin assembly is not deterministic")
-    print(f"deterministic assembly passed: {len(second)} package files")
+def check_idempotent(package: Path = PLUGIN) -> None:
+    """Compare the package with an independently assembled copy without mutating it."""
+    if not package.is_dir():
+        raise SystemExit(f"missing plugin package: {package}")
+    assert_package_links(package)
+
+    with tempfile.TemporaryDirectory(prefix="vision-harness-assembly-") as temp_dir:
+        expected = Path(temp_dir) / package.name
+        shutil.copytree(package, expected)
+        assemble(expected)
+        first = snapshot(expected)
+        current = snapshot(package)
+        if current != first:
+            changed = sorted(
+                path
+                for path in set(current) | set(first)
+                if current.get(path) != first.get(path)
+            )
+            raise SystemExit(f"plugin assembly drift: {', '.join(changed)}")
+
+        assemble(expected)
+        second = snapshot(expected)
+        if first != second:
+            raise SystemExit("plugin assembly is not deterministic")
+    print(f"deterministic assembly passed: {len(first)} package files")
 
 
 def main() -> None:
@@ -212,7 +244,7 @@ def main() -> None:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="assemble twice and fail if the package changes between runs",
+        help="compare the package with an independent deterministic assembly without rewriting it",
     )
     args = parser.parse_args()
     check_idempotent() if args.check else assemble()

@@ -5,7 +5,7 @@ description: Identify the current project task, recover only the facts and autho
 
 # Using Vision Harness
 
-Use this entry when a new request or a fresh session needs to determine what work is actually being requested. It returns a bounded handoff to the relevant work; it does not perform that work.
+Use this entry when a new request or a fresh session needs to determine what work is actually being requested. Read the [project-context behavior rules](../../references/project-context-behavior.md) and [shared operating rules](../../references/shared-rules.md) before choosing a method. It returns a bounded handoff to the relevant work; it does not perform that work.
 
 Before choosing a method, do the following in order:
 
