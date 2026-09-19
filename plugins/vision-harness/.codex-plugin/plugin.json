@@ -1,0 +1,34 @@
+{
+  "name": "vision-harness",
+  "version": "0.1.0",
+  "description": "A small, authorization-aware toolkit for project vision, onboarding, agent instructions, and delivery planning.",
+  "author": {
+    "name": "MC0571",
+    "url": "https://github.com/MC0571"
+  },
+  "repository": "https://github.com/MC0571/Vison-Harness",
+  "license": "MIT",
+  "keywords": [
+    "vision",
+    "project-onboarding",
+    "agent-instructions",
+    "breakdown"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Vision Harness",
+    "shortDescription": "Keep project goals, authorization, and delivery context intact.",
+    "longDescription": "Vision Harness helps an Agent form a usable project vision, reuse existing project facts, maintain local instructions, and turn accepted goals into concrete delivery planning without creating a parallel project database.",
+    "developerName": "MC0571",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Clarify this project's vision before planning.",
+      "Onboard this repository without duplicating its facts.",
+      "Turn this accepted vision into the next delivery batch."
+    ]
+  }
+}
