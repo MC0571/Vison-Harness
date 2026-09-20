@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -17,12 +18,29 @@ ASSEMBLER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(ASSEMBLER)
 
 
-def test_assembly_is_idempotent() -> None:
-    ASSEMBLER.assemble()
-    first = ASSEMBLER.snapshot()
-    ASSEMBLER.assemble()
-    second = ASSEMBLER.snapshot()
-    assert first == second
+def package_state(package: Path) -> dict[str, tuple[bytes, int]]:
+    return {
+        str(path.relative_to(package)): (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in sorted(package.rglob("*"))
+        if path.is_file()
+    }
+
+
+def assert_assembly_is_idempotent(package: Path) -> None:
+    with tempfile.TemporaryDirectory(prefix="vision-harness-assembly-test-") as temp_dir:
+        working = Path(temp_dir) / "vision-harness"
+        shutil.copytree(package, working)
+        ASSEMBLER.assemble(working)
+        first = ASSEMBLER.snapshot(working)
+        ASSEMBLER.assemble(working)
+        second = ASSEMBLER.snapshot(working)
+        assert first == second
+
+
+def test_assembly_is_idempotent_without_rewriting_package() -> None:
+    before = package_state(ASSEMBLER.PLUGIN)
+    assert_assembly_is_idempotent(ASSEMBLER.PLUGIN)
+    assert package_state(ASSEMBLER.PLUGIN) == before
 
 
 def test_package_has_only_the_requested_skills() -> None:
@@ -57,7 +75,11 @@ def test_check_detects_drift_without_rewriting_package() -> None:
         drifted = package / "skills" / "breakdown" / "SKILL.md"
         before = drifted.read_bytes()
         drifted.write_bytes(before + b"\nintentional drift\n")
-        changed = drifted.read_bytes()
+        os.utime(drifted, ns=(946684800000000000, 946684800000000000))
+        changed = package_state(package)
+
+        assert_assembly_is_idempotent(package)
+        assert package_state(package) == changed
 
         try:
             ASSEMBLER.check_idempotent(package)
@@ -65,7 +87,7 @@ def test_check_detects_drift_without_rewriting_package() -> None:
             assert "assembly drift" in str(exc)
         else:
             raise AssertionError("drifted package unexpectedly passed --check")
-        assert drifted.read_bytes() == changed
+        assert package_state(package) == changed
 
 
 def test_selected_sections_rejects_missing_or_duplicate_sections() -> None:
@@ -89,7 +111,7 @@ def test_selected_sections_rejects_missing_or_duplicate_sections() -> None:
 
 
 if __name__ == "__main__":
-    test_assembly_is_idempotent()
+    test_assembly_is_idempotent_without_rewriting_package()
     test_package_has_only_the_requested_skills()
     test_breakdown_uses_package_local_references()
     test_check_detects_drift_without_rewriting_package()
