@@ -91,7 +91,11 @@ Git/GitHub 连接、文件访问、测试执行优先复用宿主工具，不建
 
 ## 分发与研发分离
 
-本项目采用既有 Plugin/Skill 组成：当前 Codex Plugin 清单位于 `plugins/vision-harness/.codex-plugin/plugin.json`，由该文件直接维护；仓库 marketplace 配置位于 `.agents/plugins/marketplace.json`，指向这个包目录。`scripts/assemble_plugin.py` 从仓库权威源复制五个 Skill、改写包内引用、生成四份运行参考并复制许可证，不生成或转换 Plugin 清单。该布局只在已记录的 Codex 宿主候选上验证；其他宿主若确有需要，再按其实际格式增加适配，不能把未来适配描述成现有实现。
+本项目采用既有 Plugin/Skill 组成。Codex Plugin 清单位于 `plugins/vision-harness/.codex-plugin/plugin.json`，由该文件直接维护；仓库 marketplace 配置位于 `.agents/plugins/marketplace.json`，指向这个包目录。两者都不由装配脚本生成或转换。
+
+具体装配选择以 [scripts/assemble_plugin.py](scripts/assemble_plugin.py) 为准：`SOURCE_SKILLS` 选择普通分发入口，`REFERENCE_SECTIONS` 选择权威源及章节，引用映射负责将源文件路径转换为包内路径。脚本复制选定 Skill、生成运行参考并复制许可证；本文件不再复写易随构件变化的 Skill 或参考文件数量。
+
+源 Skill 在 `.agents/skills/` 维护，包内 `skills/` 和 `references/` 是派生产物，不能两边各自维护。README 和清单是包内直接维护的内容。用户通过 [Plugin 使用说明](plugins/vision-harness/README.md) 查找安装与使用入口；构建、安装、实际任务完成和验收通过分别记录，不能互相代替。宿主支持范围以对应候选的记录为准，不能把旧版本的安装成功或未来适配设想写成当前版本已经验证。
 
 普通产品包面向入口与十八类工作；`method-evaluation` 面向维护者，默认不纳入普通运行入口，候选执行空间不得读取评估判据或未见样例。分发份数、菜单数和职责数不是同一件事。
 

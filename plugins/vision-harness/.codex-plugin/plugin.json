@@ -1,7 +1,7 @@
 {
   "name": "vision-harness",
-  "version": "0.1.0",
-  "description": "A small, authorization-aware toolkit for project vision, onboarding, agent instructions, and delivery planning.",
+  "version": "0.2.0-alpha.1",
+  "description": "覆盖愿景、规划、实施、审查、交付、协调与长期纠偏的 Agent 工作方法；按任务调用并遵守授权边界。",
   "author": {
     "name": "MC0571",
     "url": "https://github.com/MC0571"
@@ -10,15 +10,18 @@
   "license": "MIT",
   "keywords": [
     "vision",
-    "project-onboarding",
-    "agent-instructions",
-    "breakdown"
+    "planning",
+    "tdd",
+    "review",
+    "delivery",
+    "coordination",
+    "convergence"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Vision Harness",
-    "shortDescription": "Keep project goals, authorization, and delivery context intact.",
-    "longDescription": "Vision Harness helps an Agent form a usable project vision, reuse existing project facts, maintain local instructions, and turn accepted goals into concrete delivery planning without creating a parallel project database.",
+    "shortDescription": "从愿景到完整交付与持续纠偏，按需使用而非固定流水线。",
+    "longDescription": "Vision Harness 提供一个入口和十八类工作方法，帮助 Agent 形成愿景、维护规划与约定、实施变更、审查交付、协调集成并诊断长期偏离，不建立平行项目数据库。",
     "developerName": "MC0571",
     "category": "Productivity",
     "capabilities": [
@@ -26,9 +29,10 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Clarify this project's vision before planning.",
-      "Onboard this repository without duplicating its facts.",
-      "Turn this accepted vision into the next delivery batch."
+      "澄清这个项目的愿景，并在授权内整理规划。",
+      "完成这个明确 Issue，提交到独立分支，不要合并。",
+      "协调这批工作的依赖与集成，不重新规划整个项目。",
+      "只审查当前 PR，不修改代码。"
     ]
   }
 }
