@@ -14,7 +14,21 @@ Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Pl
 
 项目的完整愿景见 [VISION.md](VISION.md)，详细方法规则见 [METHOD.md](METHOD.md)。
 
-> **以下交互主要展示目标体验，不代表完整 Plugin 已实现。** 仓库已有 [Breakdown 入口](.agents/skills/breakdown/SKILL.md)，其限定验收记录见 [交付 #22](https://github.com/MC0571/Vison-Harness/issues/22)。这不证明全部 Skill、当前新契约或分发后的组合路径。
+## 当前可用范围
+
+仓库当前提供一个可构建、可本地安装的 `vision-harness` Plugin 候选，包含五个可直接调用的 Skill：
+
+- `using-vision-harness`：识别任务、恢复必要事实并核对授权和停止位置；
+- `project-onboarding`：按真实缺口接入新项目或已有项目；
+- `vision-management`（Vision）：通过多轮讨论形成、修订并按授权保存愿景；
+- `agent-instructions`：维护根或局部 `AGENTS.md`，保留已有规则；
+- `breakdown`：把已接受的愿景转成具体交付规划，并滚动细化。
+
+本地安装与开发装配命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。当前候选的安装、更新保护、直接入口、多轮 Vision、授权内本地 `VISION.md` / `PLAN.md` 写入、无旧聊天接续和定向 Breakdown 回归，已在 Codex CLI `0.155.0-alpha.9.2` 的受控本地项目中验证；范围与原始证据见 [#16 验收记录](https://github.com/MC0571/Vison-Harness/issues/16#issuecomment-5743410799)。
+
+该 Plugin 尚未公开发布。现有证据不代表所有宿主或自动调用都已验证，也不代表真实 GitHub Issue、Milestone 和原生关系写入已经通过；下文未列入上述五项的 Skill 和完整职责仍是产品设计，不是当前可用功能。
+
+> **以下交互主要展示完整产品的目标体验，不代表所有命令或能力已经实现。**
 
 ## 从一个模糊想法开始
 
@@ -97,7 +111,7 @@ Breakdown 保留现有名称，承担整体规划与滚动细化；候选名称 
 | “只审查 Spec / 代码 / PR” | 分别选择对应审查；验证获取证据，审查形成判断，不自动修复、合并或发布 |
 | “这些规则太重了” | simplification 诊断复杂度及成本；需要改指引或审查配置时交给相应维护工作 |
 
-每个工作 Skill 都可被直接调用，仍要核对自己的依据与授权。入口不是必经关卡，也不凭它的存在就承诺宿主会自动加载。尚未实现的名称是产品设计，不是当前可调用命令。
+完整设计中的每个工作 Skill 都应可被直接调用，仍要核对自己的依据与授权。入口不是必经关卡，也不凭它的存在就承诺宿主会自动加载。尚未实现的名称是产品设计，不是当前可调用命令。
 
 ## 帮助安排依赖和并行
 

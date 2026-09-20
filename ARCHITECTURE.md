@@ -91,7 +91,7 @@ Git/GitHub 连接、文件访问、测试执行优先复用宿主工具，不建
 
 ## 分发与研发分离
 
-本项目采用既有 Plugin/Skill 组成：包清单、`skills/<name>/SKILL.md` 及必要运行资源；当前可移植清单使用根 `plugin.json`，目标宿主需要时生成兼容清单。具体加载与权限以目标宿主的实际能力验证，不将一种宿主的布局说成所有环境的保证。
+本项目采用既有 Plugin/Skill 组成：当前 Codex Plugin 清单位于 `plugins/vision-harness/.codex-plugin/plugin.json`，由该文件直接维护；仓库 marketplace 配置位于 `.agents/plugins/marketplace.json`，指向这个包目录。`scripts/assemble_plugin.py` 从仓库权威源复制五个 Skill、改写包内引用、生成四份运行参考并复制许可证，不生成或转换 Plugin 清单。该布局只在已记录的 Codex 宿主候选上验证；其他宿主若确有需要，再按其实际格式增加适配，不能把未来适配描述成现有实现。
 
 普通产品包面向入口与十八类工作；`method-evaluation` 面向维护者，默认不纳入普通运行入口，候选执行空间不得读取评估判据或未见样例。分发份数、菜单数和职责数不是同一件事。
 

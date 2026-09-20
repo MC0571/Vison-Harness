@@ -1,26 +1,26 @@
 # Vision Harness
 
-Vision Harness gives a coding Agent five direct work entries:
+Vision Harness 为编程 Agent 提供五个可直接调用的工作入口：
 
-- `using-vision-harness` identifies the request, relevant project facts, authorization, and stopping point.
-- `project-onboarding` finds real adoption gaps without creating a second project structure.
-- `vision-management` (shown as **Vision**) conducts a real multi-turn discussion and records only authorized decisions.
-- `agent-instructions` maintains root or local `AGENTS.md` guidance while preserving existing rules.
-- `breakdown` turns an accepted vision into concrete product delivery planning and keeps its existing planning behavior.
+- `using-vision-harness`：识别请求、相关项目事实、授权和停止位置。
+- `project-onboarding`：查找真实接入缺口，不创建第二套项目结构。
+- `vision-management`（显示为 **Vision**）：进行真实多轮讨论，只记录已获授权的决定。
+- `agent-instructions`：维护根或局部 `AGENTS.md`，保留已有规则。
+- `breakdown`：把已接受的愿景转成具体产品交付规划，并保留既有规划行为。
 
-The package is self-contained. Runtime rules are in `references/`; consumer-project facts remain in the consumer project. Installing or updating the plugin does not write `VISION.md`, `AGENTS.md`, plans, or custom project rules.
+包内运行规则位于 `references/`；消费项目事实仍保留在消费项目中。安装或更新 Plugin 不会写入 `VISION.md`、`AGENTS.md`、计划或自定义项目规则。
 
-## Local installation
+## 本地安装
 
-From a checkout containing this package, install the repository marketplace and then the plugin:
+在仓库检出目录中，先添加仓库 marketplace，再安装 Plugin：
 
 ```bash
 codex plugin marketplace add /path/to/Vison-Harness
 codex plugin add vision-harness@personal
 ```
 
-Start a new session after an update so the host loads the new Skill set. The package does not make a host claim merely because a Skill file exists; verify automatic loading with the target host when that distinction matters.
+更新后启动新会话，使宿主加载新的 Skill 集合。当前仓库只提供本地候选，没有公开发布；仅有 Skill 文件也不能证明宿主会自动加载，必要时应在目标宿主中验证。
 
-## Development assembly
+## 开发装配
 
-The committed package is produced by the repository's deterministic `scripts/assemble_plugin.py`. It copies the four new source Skills and the existing Breakdown Skill, converts their project-relative references to package-local references, and derives the small runtime reference set from the repository's authoritative method/spec sources. Run it from the repository root before validation.
+提交的包由仓库中的确定性脚本 `scripts/assemble_plugin.py` 生成。脚本复制四个新源 Skill 和既有 Breakdown Skill，把项目相对引用改为包内引用，并从权威方法和 Spec 源生成精简运行参考。验证前从仓库根目录运行。
