@@ -14,9 +14,9 @@ Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Pl
 
 项目的完整愿景见 [VISION.md](VISION.md)，详细方法规则见 [METHOD.md](METHOD.md)。
 
-## 当前可用范围
+## 当前提供的实现
 
-仓库提供覆盖完整工作职责的 `vision-harness` Plugin 候选 `0.2.0-alpha.1`：一个入口、十八个用户工作 Skill。维护者的 `method-evaluation` 位于研发仓库，不装配进普通用户 Plugin。
+`vision-harness` Plugin 候选 `0.2.0-alpha.1` 已为架构中的一个入口和十八类用户工作提供 Skill 指令及分发文件。维护者的 `method-evaluation` 位于研发仓库，不装配进普通用户 Plugin。这里说明的是已经提交的实现范围，不代表新增能力已经通过运行验收。
 
 | 工作范围 | 已提供的 Skill 实现 |
 | --- | --- |
@@ -26,13 +26,17 @@ Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Pl
 | 审查、验证与交付 | `spec-review`、`code-review`、`pr-review`、`change-verification`、`release-delivery` |
 | 纠偏与规则维护 | `project-convergence`、`agent-instructions`、`review-setup` |
 
-安装、工作入口和开发装配命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。各 Skill 提供实际工作方法、条件分支、交接和结束判断；按任务选择，不执行十九步流水线。工具操作由宿主已有能力承担，不新增自有调度器、权限系统或项目数据库。
+安装、工作入口和开发装配命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。各 Skill 提供工作方法、条件分支、交接和结束判断；按任务选择，不执行十九步流水线。工具操作由宿主已有能力承担，不新增自有调度器、权限系统或项目数据库。
 
-本候选以完整 Plugin 实现与分发为本次交付目标，不把新增 Eval 工程或跨宿主补验作为开工前置。包清单、运行引用和确定性装配仍需保持一致；未运行的行为或集成验证如实保留为未验证，不冒充通过。
+### 实现与验收分开说明
 
-历史首阶段的五个 Skill、安装更新、多轮 Vision、本地规划与无旧聊天接续证据见 [#16 验收记录](https://github.com/MC0571/Vison-Harness/issues/16#issuecomment-5743410799)。该证据绑定旧候选与 Codex CLI `0.155.0-alpha.9.2` 的受控环境，不能自动扩到本候选新增的工作、真实 GitHub 写入、自动触发或其他宿主。本候选尚未经过新的端到端行为验收或公开发布。
+完整入口的实现由 [PR #38](https://github.com/MC0571/Vison-Harness/pull/38) 承载，具体提交、迭代内容和未执行项目保存在该工作记录中。构件生成、测试、宿主安装、用户任务完成及独立验收是不同结果，不能用入口数量或文件存在代替。
 
-> **完整职责已有实现，不等于所有宿主和场景已验证。以下交互是使用方法说明，不是逐项运行结果。**
+当前迭代未运行完整装配检查、测试、安装演练或新的 Agent 行为验收，也未公开发布。本轮交付的是完整入口范围的实现与分发内容，不是新增工作路径已经可靠的结论。构建和检查命令分别列在包内说明中，提供命令不表示已经执行。
+
+历史首阶段的五个 Skill、安装更新、多轮 Vision、本地规划与无旧聊天接续证据见 [#16 验收记录](https://github.com/MC0571/Vison-Harness/issues/16#issuecomment-5743410799)。该证据绑定旧候选与 Codex CLI `0.155.0-alpha.9.2` 的受控环境，不能自动扩到本候选、新增工作、真实 GitHub 写入、自动触发或其他宿主。
+
+> **以下内容说明如何使用这些工作方法，不是新候选的逐项运行结果或验收声明。**
 
 ## 从一个模糊想法开始
 
