@@ -16,19 +16,23 @@ Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Pl
 
 ## 当前可用范围
 
-仓库当前提供一个可构建、可本地安装的 `vision-harness` Plugin 候选，包含五个可直接调用的 Skill：
+仓库提供覆盖完整工作职责的 `vision-harness` Plugin 候选 `0.2.0-alpha.1`：一个入口、十八个用户工作 Skill。维护者的 `method-evaluation` 位于研发仓库，不装配进普通用户 Plugin。
 
-- `using-vision-harness`：识别任务、恢复必要事实并核对授权和停止位置；
-- `project-onboarding`：按真实缺口接入新项目或已有项目；
-- `vision-management`（Vision）：通过多轮讨论形成、修订并按授权保存愿景；
-- `agent-instructions`：维护根或局部 `AGENTS.md`，保留已有规则；
-- `breakdown`：把已接受的愿景转成具体交付规划，并滚动细化。
+| 工作范围 | 已提供的 Skill 实现 |
+| --- | --- |
+| 入口、接入与愿景 | `using-vision-harness`、`project-onboarding`、`vision-management` |
+| 调查、规划与协调 | `assumption-validation`、`breakdown`、`issue-shaping`、`delivery-coordination` |
+| 规格、设计与实施 | `spec-development`、`technical-design`、`tdd-development`、`simplification` |
+| 审查、验证与交付 | `spec-review`、`code-review`、`pr-review`、`change-verification`、`release-delivery` |
+| 纠偏与规则维护 | `project-convergence`、`agent-instructions`、`review-setup` |
 
-本地安装与开发装配命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。当前候选的安装、更新保护、直接入口、多轮 Vision、授权内本地 `VISION.md` / `PLAN.md` 写入、无旧聊天接续和定向 Breakdown 回归，已在 Codex CLI `0.155.0-alpha.9.2` 的受控本地项目中验证；范围与原始证据见 [#16 验收记录](https://github.com/MC0571/Vison-Harness/issues/16#issuecomment-5743410799)。
+安装、工作入口和开发装配命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。各 Skill 提供实际工作方法、条件分支、交接和结束判断；按任务选择，不执行十九步流水线。工具操作由宿主已有能力承担，不新增自有调度器、权限系统或项目数据库。
 
-该 Plugin 尚未公开发布。现有证据不代表所有宿主或自动调用都已验证，也不代表真实 GitHub Issue、Milestone 和原生关系写入已经通过；下文未列入上述五项的 Skill 和完整职责仍是产品设计，不是当前可用功能。
+本候选以完整 Plugin 实现与分发为本次交付目标，不把新增 Eval 工程或跨宿主补验作为开工前置。包清单、运行引用和确定性装配仍需保持一致；未运行的行为或集成验证如实保留为未验证，不冒充通过。
 
-> **以下交互主要展示完整产品的目标体验，不代表所有命令或能力已经实现。**
+历史首阶段的五个 Skill、安装更新、多轮 Vision、本地规划与无旧聊天接续证据见 [#16 验收记录](https://github.com/MC0571/Vison-Harness/issues/16#issuecomment-5743410799)。该证据绑定旧候选与 Codex CLI `0.155.0-alpha.9.2` 的受控环境，不能自动扩到本候选新增的工作、真实 GitHub 写入、自动触发或其他宿主。本候选尚未经过新的端到端行为验收或公开发布。
+
+> **完整职责已有实现，不等于所有宿主和场景已验证。以下交互是使用方法说明，不是逐项运行结果。**
 
 ## 从一个模糊想法开始
 
@@ -67,7 +71,7 @@ Vision Harness 应帮助用户形成一份合格的 `VISION.md`，但“合格�
 
 Vision Harness 不把一句愿景直接转换成大量工程任务。它应先连接目标、结果证据和具体产品交付，再逐步细化近期工作。
 
-以 Vision Harness 自身为例，规划方法可以表达为（这是方法示例，不代表以下组件已实现）：
+以 Vision Harness 自身为例，规划方法可以表达为（这是方法示例，不是当前版本的验收记录）：
 
 ```text
 VISION
@@ -111,7 +115,7 @@ Breakdown 保留现有名称，承担整体规划与滚动细化；候选名称 
 | “只审查 Spec / 代码 / PR” | 分别选择对应审查；验证获取证据，审查形成判断，不自动修复、合并或发布 |
 | “这些规则太重了” | simplification 诊断复杂度及成本；需要改指引或审查配置时交给相应维护工作 |
 
-完整设计中的每个工作 Skill 都应可被直接调用，仍要核对自己的依据与授权。入口不是必经关卡，也不凭它的存在就承诺宿主会自动加载。尚未实现的名称是产品设计，不是当前可调用命令。
+完整设计中的每个工作 Skill 都应可被直接调用，仍要核对自己的依据与授权。入口不是必经关卡，也不凭它的存在就承诺宿主会自动加载。具体调用取决于宿主实际加载的候选；缺失入口应明确报告，不能假称已执行。
 
 ## 帮助安排依赖和并行
 

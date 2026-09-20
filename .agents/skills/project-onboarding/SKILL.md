@@ -20,6 +20,7 @@ Use this entry when a project is new to the method or when the user asks whether
 - If a goal is unclear, hand the relevant gap to `vision-management`; do not fill the user's product decision from the package's vision.
 - If a plan is missing but the goal is sufficient and planning is requested, hand off to `breakdown`; do not turn onboarding into implementation.
 - If a rule is missing or a true local difference exists, hand off to `agent-instructions`. No local difference means no local `AGENTS.md`.
+- If project-specific review rules or a real review entry are missing, hand the bounded gap to [review-setup](../review-setup/SKILL.md). Reuse a sufficient existing setup; do not require three rule files or three reviewers.
 - If the request only asks for assessment, stop without writing. If writing is authorized, name the exact files and preserve unrelated rules before writing and reread each file afterward.
 - Installing or updating this package must not overwrite the consumer project's vision, instructions, plans, custom rules, or source tree. If a proposed action would do so, stop and report the boundary.
 

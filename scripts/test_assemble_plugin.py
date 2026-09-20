@@ -45,11 +45,12 @@ def test_assembly_is_idempotent_without_rewriting_package() -> None:
 
 def test_package_has_only_the_requested_skills() -> None:
     expected = {
-        "using-vision-harness",
-        "project-onboarding",
-        "vision-management",
-        "agent-instructions",
-        "breakdown",
+        "using-vision-harness", "project-onboarding", "vision-management",
+        "agent-instructions", "breakdown", "assumption-validation",
+        "issue-shaping", "delivery-coordination", "spec-development",
+        "technical-design", "tdd-development", "simplification", "spec-review",
+        "code-review", "pr-review", "change-verification", "release-delivery",
+        "project-convergence", "review-setup",
     }
     actual = {
         path.parent.name
@@ -57,6 +58,7 @@ def test_package_has_only_the_requested_skills() -> None:
     }
     assert actual == expected
     assert not (ASSEMBLER.PLUGIN / "skills" / "project-context").exists()
+    assert not (ASSEMBLER.PLUGIN / "skills" / "method-evaluation").exists()
 
 
 def test_breakdown_uses_package_local_references() -> None:
@@ -66,6 +68,26 @@ def test_breakdown_uses_package_local_references() -> None:
     assert "../../references/shared-rules.md" in text
     assert "../../references/breakdown-behavior.md" in text
     assert "../../../" not in text
+
+
+def test_engineering_skills_use_selected_runtime_rules() -> None:
+    expected = {
+        "assumption-validation": "#4-",
+        "delivery-coordination": "#4-",
+        "spec-development": "#7-",
+        "technical-design": "#7-",
+        "spec-review": "#9-",
+        "code-review": "#9-",
+        "pr-review": "#9-",
+        "review-setup": "#9-",
+    }
+    for name, anchor in expected.items():
+        text = (ASSEMBLER.PLUGIN / "skills" / name / "SKILL.md").read_text(encoding="utf-8")
+        assert "../../references/engineering-rules.md" + anchor in text
+        assert "../../../" not in text
+    reference = (ASSEMBLER.PLUGIN / "references" / "engineering-rules.md").read_text(encoding="utf-8")
+    for heading in ("## 4. ", "## 7. ", "## 9. "):
+        assert heading in reference
 
 
 def test_check_detects_drift_without_rewriting_package() -> None:
@@ -114,6 +136,7 @@ if __name__ == "__main__":
     test_assembly_is_idempotent_without_rewriting_package()
     test_package_has_only_the_requested_skills()
     test_breakdown_uses_package_local_references()
+    test_engineering_skills_use_selected_runtime_rules()
     test_check_detects_drift_without_rewriting_package()
     test_selected_sections_rejects_missing_or_duplicate_sections()
     print("assembly checks passed")

@@ -20,8 +20,23 @@ SOURCE_SKILLS = (
     "vision-management",
     "agent-instructions",
     "breakdown",
+    "assumption-validation",
+    "issue-shaping",
+    "delivery-coordination",
+    "spec-development",
+    "technical-design",
+    "tdd-development",
+    "simplification",
+    "spec-review",
+    "code-review",
+    "pr-review",
+    "change-verification",
+    "release-delivery",
+    "project-convergence",
+    "review-setup",
 )
 
+# method-evaluation is a maintainer entry, not part of the ordinary distribution.
 REFERENCE_SECTIONS = {
     "shared-rules.md": (
         ROOT / "METHOD.md",
@@ -34,6 +49,14 @@ REFERENCE_SECTIONS = {
             "## 10. 用适用证据判断完成和交付",
             "## 11. 根据新事实继续、调整或停止",
             "## 12. 方法必须同时防止草率和过度治理",
+        ),
+    ),
+    "engineering-rules.md": (
+        ROOT / "METHOD.md",
+        (
+            "## 4. 维护依赖，并设计有效的推进方式",
+            "## 7. 按变化维护 Spec、架构和决策",
+            "## 9. 按对象组织审查，而不是机械增加审查轮次",
         ),
     ),
     "vision-behavior.md": (
@@ -71,6 +94,9 @@ REFERENCE_SECTIONS = {
 }
 
 SKILL_REFERENCE_REWRITES = {
+    "../../../METHOD.md#4-维护依赖并设计有效的推进方式": "../../references/engineering-rules.md#4-维护依赖并设计有效的推进方式",
+    "../../../METHOD.md#7-按变化维护-spec架构和决策": "../../references/engineering-rules.md#7-按变化维护-spec架构和决策",
+    "../../../METHOD.md#9-按对象组织审查而不是机械增加审查轮次": "../../references/engineering-rules.md#9-按对象组织审查而不是机械增加审查轮次",
     "../../../METHOD.md": "../../references/shared-rules.md",
     "../../../specs/vision/spec.md": "../../references/vision-behavior.md",
     "../../../specs/project-context/spec.md": "../../references/project-context-behavior.md",
