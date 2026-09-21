@@ -206,8 +206,14 @@ def _slug(text: str) -> str:
 
 def _anchors(path: Path) -> set[str]:
     text = path.read_text(encoding="utf-8")
-    anchors = set(EXPLICIT_ANCHOR_RE.findall(text))
     tokens = MARKDOWN.parse(text)
+    anchors = set()
+    for token in tokens:
+        if token.type in {"html_inline", "html_block"}:
+            anchors.update(EXPLICIT_ANCHOR_RE.findall(token.content))
+        for child in token.children or ():
+            if child.type in {"html_inline", "html_block"}:
+                anchors.update(EXPLICIT_ANCHOR_RE.findall(child.content))
     for index, token in enumerate(tokens[:-1]):
         if token.type == "heading_open" and tokens[index + 1].type == "inline":
             anchors.add(_slug(tokens[index + 1].content))
@@ -216,7 +222,7 @@ def _anchors(path: Path) -> set[str]:
 
 def _resolve_local_link(source: Path, raw_target: str, skill: Path) -> tuple[Path, str] | None:
     parsed = urlsplit(raw_target)
-    if parsed.scheme in {"http", "https", "mailto"} or parsed.netloc:
+    if parsed.scheme in {"http", "https", "mailto"}:
         if parsed.hostname == "raw.githubusercontent.com" or (
             parsed.hostname == "github.com" and "/raw/" in parsed.path
         ):
@@ -224,7 +230,7 @@ def _resolve_local_link(source: Path, raw_target: str, skill: Path) -> tuple[Pat
                 f"GitHub raw links may not supply Skill runtime methods in {source}: {raw_target}"
             )
         return None
-    if parsed.scheme or re.match(r"^[A-Za-z]:[\\/]", raw_target):
+    if parsed.scheme or parsed.netloc or re.match(r"^[A-Za-z]:[\\/]", raw_target):
         raise ValidationError(f"absolute local link is not allowed in {source}: {raw_target}")
     decoded = unquote(parsed.path)
     if not decoded:

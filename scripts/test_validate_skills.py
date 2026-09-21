@@ -73,11 +73,22 @@ class SkillValidationTests(unittest.TestCase):
             "escape": "[escape](references/%2e%2e/%2e%2e/METHOD.md)",
             "absolute": "[method](/tmp/provider/METHOD.md)",
             "file-url": "[method](file:///tmp/provider/METHOD.md)",
+            "file-localhost-url": "[method](file://localhost/tmp/provider/METHOD.md)",
+            "file-server-url": "[method](file://server/share/METHOD.md)",
+            "ftp-url": "[method](ftp://server/share/METHOD.md)",
         }
         for label, body in cases.items():
             with self.subTest(label=label), tempfile.TemporaryDirectory() as temp:
                 skill = make_skill(Path(temp), body + "\n")
                 self.assert_invalid(skill, "local link")
+
+    def test_http_and_https_links_are_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            skill = make_skill(
+                Path(temp),
+                "[http](http://example.com/guide) [https](https://example.com/guide)\n",
+            )
+            VALIDATOR.validate_skill(skill)
 
     def test_github_raw_runtime_dependency_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -109,6 +120,29 @@ class SkillValidationTests(unittest.TestCase):
                 {"references/guide.md": b"# Guide\n"},
             )
             self.assert_invalid(skill, "missing anchor")
+
+    def test_real_html_anchor_is_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            skill = make_skill(
+                Path(temp),
+                "[guide](references/guide.md#real)\n",
+                {"references/guide.md": b'<a id="real"></a>\n'},
+            )
+            VALIDATOR.validate_skill(skill)
+
+    def test_code_examples_do_not_count_as_html_anchors(self) -> None:
+        cases = {
+            "fence": '```html\n<a id="missing"></a>\n```\n',
+            "inline": 'Use `<a id="missing"></a>` as an example.\n',
+        }
+        for label, example in cases.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as temp:
+                skill = make_skill(
+                    Path(temp),
+                    "[guide](references/guide.md#missing)\n",
+                    {"references/guide.md": example.encode()},
+                )
+                self.assert_invalid(skill, "missing anchor")
 
     def test_fenced_examples_are_ignored_but_reference_links_are_checked(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
