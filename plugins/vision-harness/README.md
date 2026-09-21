@@ -1,102 +1,76 @@
-# Vision Harness
+# Vision Harness Plugin
 
-0.3.0-alpha.1 将普通分发从十九个平级入口收敛为 12 个工作入口 + 按条件加载的 references。职责没有按文件数量删减：单项 Issue 整理、交付协调、关键假设、复杂度控制和审查配置等方法仍在包内，只是不再作为独立用户入口。
+0.4.0-alpha.1 组合分发十二个职责明确、资源自包含的普通 Skill。每个 `skills/<name>/` 都有自己的方法 references、可选 assets 和 LICENSE；Plugin 没有根级方法 references，也不负责补齐不完整 Skill。
 
 ## 工作入口
 
 | 工作 | Skill |
 | --- | --- |
-| 识别请求、恢复最少事实与授权 | [using-vision-harness](skills/using-vision-harness/SKILL.md) |
-| 按真实缺口接入项目 | [project-onboarding](skills/project-onboarding/SKILL.md) |
-| 愿景形成、检查与维护 | [vision-management](skills/vision-management/SKILL.md) |
-| 全景/滚动规划、单项整理、依赖并行与集成协调 | [breakdown](skills/breakdown/SKILL.md) |
-| 行为 Spec surface、制定与演进 | [spec-development](skills/spec-development/SKILL.md) |
-| 技术方案、Architecture Impact、ADR | [technical-design](skills/technical-design/SKILL.md) |
-| TDD 实施、调试与复杂度控制 | [tdd-development](skills/tdd-development/SKILL.md) |
-| Spec / Code / PR 审查 | [review](skills/review/SKILL.md) |
-| 获取、复用或审计变更证据 | [change-verification](skills/change-verification/SKILL.md) |
-| 构件、PR/合并、发布与收尾 | [release-delivery](skills/release-delivery/SKILL.md) |
-| 系统级长期 convergence | [project-convergence](skills/project-convergence/SKILL.md) |
-| AGENTS、审查规则和宿主 Agent 配置 | [agent-instructions](skills/agent-instructions/SKILL.md) |
+| 恢复任务上下文并定位下一步 | `using-vision-harness` |
+| 查明并完成最小项目接入 | `project-onboarding` |
+| 形成、检查或修订愿景 | `vision-management` |
+| 全景/滚动规划、单项整理、交付协调 | `breakdown` |
+| 建立、更新或复用长期行为约定 | `spec-development` |
+| 技术方案、架构影响与必要 ADR | `technical-design` |
+| TDD 实施、缺陷修复与诊断 | `tdd-development` |
+| Spec / Code / PR 审查 | `review` |
+| 执行、复用或审计证据 | `change-verification` |
+| 打包、PR、合并、发布或关闭 | `release-delivery` |
+| 系统级偏离与限定纠偏 | `project-convergence` |
+| Agent 指引与 reviewer 配置 | `agent-instructions` |
 
-维护者的 method-evaluation 只存在于研发仓库，不装入普通用户包。
+这些入口不是固定流程。明确的实施、审查或单项整理可以直接调用；`using-vision-harness` 不是必经路由器。维护者 Skill `method-evaluation` 不在本包中。
 
-## 旧入口迁移
+## 安装整个 Plugin
 
-- issue-shaping、delivery-coordination → 直接调用 breakdown 的单项/协调模式。
-- spec-review、code-review、pr-review → review，按对象选择 Spec/Code/PR。
-- assumption-validation → 当前负责决定的工作入口按条件加载规划方法。
-- simplification → Design/TDD/Review/Convergence 按条件加载实现与复杂度方法。
-- review-setup → agent-instructions 的审查配置模式。
+先检出准备使用的分支或提交，再从仓库根 marketplace 安装：
 
-这些是入口收敛，不是能力删除。
-
-## Progressive disclosure
-
-SKILL.md 只保留结果、使用边界、执行骨架、关键授权规则和 reference 加载条件。详细方法位于 references/：
-
-- shared-rules.md：授权、安全共享事实修改、治理充分性；
-- planning-methods.md：完整目标、单项整理、关键假设、依赖/并行/集成；
-- spec-design-methods.md：Spec surface、Architecture Impact、ADR、技术方案；
-- implementation-methods.md：行为切片、TDD、调试、复杂度控制；
-- review-methods.md：Spec/Code/PR 详细审查；
-- evidence-methods.md：证据范围、复用、执行和审计；
-- convergence-methods.md：系统级收敛；
-- agent-config-methods.md：AGENTS、审查规范和宿主配置；
-- 另有 Vision、Project Context、Breakdown、Review 的行为 references。
-
-不要在开始任务时预读全部 references。Skill 中写明了何时加载哪一份。
-
-当前支持的安装单元是整个 vision-harness Plugin。不要把单个 skills/<name>/ 目录当成独立可分发包复制；这些 Skill 依赖同一 Plugin 内的 references。若未来新增单 Skill 安装方式，必须由构建步骤把依赖资源一起打包并通过断链检查。
-
-## 本地安装
-
-先检出准备使用的分支或提交，再使用仓库根 marketplace：
-
-~~~bash
+```bash
 codex plugin marketplace add /path/to/Vison-Harness
 codex plugin add vision-harness@personal
-~~~
+```
 
-安装后启动新会话，让宿主读取当前候选。在支持显式 Skill 选择的宿主中可以直接调用，例如：
+当前分发使用 Codex 兼容清单 `.codex-plugin/plugin.json`，其 `skills` 指向 `./skills/`。这个 Plugin 格式与“每个 Skill 目录方法自包含”是两个边界：前者负责组合发现，后者保证单目录不依赖 Plugin 根或提供者仓库。
 
-~~~text
-使用 breakdown 整理这个 Issue 的范围与完成条件；只给建议，不改 GitHub。
-~~~
+## 单 Skill 导出与复制
 
-~~~text
-使用 review 审查当前 PR，只给判断，不修复、不合并。
-~~~
+在研发仓库运行：
 
-~~~text
-使用 tdd-development 完成这个明确 Issue，允许修改代码和测试，提交独立分支，不要合并。
-~~~
+```bash
+python3 scripts/assemble_plugin.py --export-skill breakdown --output /tmp/vision-harness-export
+```
 
-自然语言请求可以由 using-vision-harness 帮助选择入口；它不是必经路由器，是否自动触发取决于宿主。
+命令生成 `/tmp/vision-harness-export/breakdown/`。确认消费项目目标目录不存在或无冲突后，将整个目录复制到：
 
-## 包和工具边界
+```text
+<consumer-project>/.agents/skills/breakdown/
+```
 
-共享 references 由研发仓库的 METHOD 与行为 Spec 确定性生成；消费项目事实仍从消费项目和 GitHub 获取。文件、GitHub、测试、子 Agent 等操作使用宿主已有工具及本轮授权，本包不捆绑自有状态库、调度器或权限系统。
+不要只复制 `SKILL.md`，也不要覆盖消费项目已有同名目录。本命令不安装到用户全局环境，不携带其他 Skill、研发 METHOD/Spec/Eval 或 Plugin 清单。
 
-安装和更新不得覆盖消费项目愿景、AGENTS、规划、自定义规则或代码。讨论、实施、审查、合并、发布分别判断权限。
+## 研发装配与检查
 
-## 开发装配与检查
+编辑 `.agents/skills/<name>/` 中的人工方法文件；共同方法只编辑 `skill-resources/` 的四份源。不要手改 `plugins/vision-harness/skills/` 或各 Skill 中由装配同步的共同副本与 LICENSE。
 
-源 Skill 位于研发仓库 .agents/skills/；包内 skills/ 和 references/ 是生成物：
+首次准备开发环境时，在仓库本地创建并启用虚拟环境，然后安装固定开发依赖：
 
-~~~bash
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements-dev.txt
+```
+
+```bash
 python3 scripts/assemble_plugin.py
-~~~
-
-只读漂移检查与装配测试：
-
-~~~bash
-python3 scripts/assemble_plugin.py --check
+python3 scripts/validate_skills.py --source
+python3 scripts/validate_skills.py --package
 python3 scripts/test_assemble_plugin.py
-~~~
+python3 scripts/test_validate_skills.py
+python3 scripts/assemble_plugin.py --check
+```
 
-测试检查目标 Skill 集、包内引用、reference 分割、旧入口移除以及确定性装配。结构检查不等于真实 Agent 行为通过；行为回归设计位于研发仓库 evals/，不会打进普通包。
+装配递归保留完整目录、二进制内容和执行位；`--check` 是只读漂移检查。结构与迁移检查只证明当前文件集合、封装和确定性规则，不证明宿主安装、自动触发、权限隔离或 Agent 效果。
 
 ## 当前候选边界
 
-0.3.0-alpha.1 是架构收敛候选：源入口、分发构件、独立 Review 行为约定和路由/reference Eval 已同步更新。当前提交环境没有执行真实宿主安装或 Agent 行为验收；旧候选的运行证据不能自动扩到本候选。构建通过、安装通过、用户任务完成、独立审查和发布授权仍是不同结论。
+当前源码与 Plugin 构件都包含完整本地方法资源，旧插件根 `references/` 已移除。候选未执行真实消费项目安装或 Agent 效果评估，未发布正式版本。构件生成、宿主安装、任务结果、独立审查、合并与发布仍分别判断。

@@ -4,7 +4,7 @@
 
 先确认用户本轮要求、允许修改的范围和停止位置。本文件说明如何工作，不授予实施、合并、发布或外部操作权限。
 
-新会话先读取 [VISION.md](VISION.md) 和 [README.md](README.md)，再按任务读取 [METHOD.md](METHOD.md) 的相关章节。不要每次展开全部历史；遇到跨范围影响或事实冲突时，再补充相关上下文。
+按任务读取最少必要入口：产品范围工作读取 [VISION.md](VISION.md)；Skill 方法工作读取目标 Skill、[ARCHITECTURE.md](ARCHITECTURE.md) 和相关方法约定；装配工具工作读取 [ARCHITECTURE.md](ARCHITECTURE.md) 与实际脚本。使用说明从 [README.md](README.md) 定位。出现跨范围影响或事实冲突时，再补充相关上下文，不要求每个新会话预读全部文档。
 
 工作安排从 [GitHub 规划入口](https://github.com/MC0571/Vison-Harness/issues/2) 和当前 Issue、PR 读取。核对实时状态、有效决定及准确提交，不将聊天摘要、文件存在或旧审查结论当作当前证据。
 
@@ -25,6 +25,8 @@
 构建、测试和检查命令从仓库实际存在的配置、脚本及相关 Issue 获取，先确认可用再执行。没有相应入口时如实报告，不猜测命令，也不将“未执行”写成“通过”。
 
 对代码和确定性工具应用 TDD；对 Skill 或规则行为准备正反场景，并保留实际运行证据。修改 Markdown 指令、AGENTS.md 或配置可能改变 Agent 行为，应按影响选择验证，不能仅按扩展名免检。
+
+编辑普通 Skill 时修改 `.agents/skills/<name>/` 的人工方法文件；共同操作方法只编辑 `skill-resources/` 的单一来源。生成前先用 `python3 scripts/assemble_plugin.py --check` 识别旧构件状态；用 `python3 scripts/assemble_plugin.py` 同步共享副本、许可证和 Plugin 完整目录，不手工修改 `plugins/vision-harness/skills/`。完整性入口为 `python3 scripts/validate_skills.py --source`、`python3 scripts/validate_skills.py --package` 和两个 `scripts/test_*.py`。
 
 文档修改至少检查引用、范围一致性、Markdown 结构和意外文件变更。局部检查不证明真实 Agent 已经能够完成任务；结果必须说明对象、提交和未验证范围。
 

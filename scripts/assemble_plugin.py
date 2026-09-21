@@ -1,326 +1,307 @@
 #!/usr/bin/env python3
-"""Assemble the self-contained Vision Harness distribution package."""
+"""Assemble or export self-contained Vision Harness Skills."""
 
 from __future__ import annotations
 
 import argparse
 import hashlib
-import re
+import os
 import shutil
+import stat
+import sys
 import tempfile
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "vision-harness"
-
-SOURCE_SKILLS = (
-    "using-vision-harness",
-    "project-onboarding",
-    "vision-management",
-    "breakdown",
-    "spec-development",
-    "technical-design",
-    "tdd-development",
-    "review",
-    "change-verification",
-    "release-delivery",
-    "project-convergence",
-    "agent-instructions",
-)
-
-# method-evaluation is a maintainer entry, not part of the ordinary distribution.
-REFERENCE_SECTIONS = {
-    "shared-rules.md": (
-        ROOT / "METHOD.md",
-        (
-            "## 1. 先确认本轮任务和授权",
-            "## 5. 正确读取和安全修改项目事实",
-            "## 12. 方法必须同时防止草率和过度治理",
-        ),
-    ),
-    "planning-methods.md": (
-        ROOT / "METHOD.md",
-        (
-            "## 3. 保留完整目标，但明确本次交付",
-            "## 4. 维护依赖，并设计有效的推进方式",
-        ),
-    ),
-    "agent-config-methods.md": (
-        ROOT / "METHOD.md",
-        ("## 6. 维护 Agent 工作约定和审查规则",),
-    ),
-    "spec-design-methods.md": (
-        ROOT / "METHOD.md",
-        ("## 7. 按变化维护 Spec、架构和决策",),
-    ),
-    "implementation-methods.md": (
-        ROOT / "METHOD.md",
-        ("## 8. 用 TDD 实施，同时抑制没有依据的复杂度",),
-    ),
-    "review-methods.md": (
-        ROOT / "METHOD.md",
-        ("## 9. 按对象组织审查，而不是机械增加审查轮次",),
-    ),
-    "evidence-methods.md": (
-        ROOT / "METHOD.md",
-        ("## 10. 用适用证据判断完成和交付",),
-    ),
-    "convergence-methods.md": (
-        ROOT / "METHOD.md",
-        ("## 11. 根据新事实继续、调整或停止",),
-    ),
-    "vision-behavior.md": (
-        ROOT / "specs" / "vision" / "spec.md",
-        (
-            "## 输入与适用事实",
-            "## 可观察的对话行为",
-            "## 充分性与结束结果",
-            "## 修订与副作用",
-        ),
-    ),
-    "project-context-behavior.md": (
-        ROOT / "specs" / "project-context" / "spec.md",
-        (
-            "## 适用职责",
-            "## 来源与上下文正确性",
-            "## 新会话与授权有效性",
-            "## 按缺口接入与规则维护",
-            "## 条件交接与分发隔离",
-        ),
-    ),
-    "breakdown-behavior.md": (
-        ROOT / "specs" / "breakdown" / "spec.md",
-        (
-            "## 用途与边界",
-            "## 输入与当前依据",
-            "## 对象含义",
-            "## 初始拆解",
-            "## 下一批次细化",
-            "## 已有规划审查与修订",
-            "## 获准写入与失败处理",
-            "## 输出与结束",
-        ),
-    ),
-    "review-behavior.md": (
-        ROOT / "specs" / "review" / "spec.md",
-        (
-            "## 适用对象与授权边界",
-            "## 证据与候选",
-            "## 三类审查",
-            "## 结果与后续",
-        ),
-    ),
-}
-
-SKILL_REFERENCE_REWRITES = {
-    "../../../METHOD.md#1-先确认本轮任务和授权":
-        "../../references/shared-rules.md#1-先确认本轮任务和授权",
-    "../../../METHOD.md#3-保留完整目标但明确本次交付":
-        "../../references/planning-methods.md#3-保留完整目标但明确本次交付",
-    "../../../METHOD.md#4-维护依赖并设计有效的推进方式":
-        "../../references/planning-methods.md#4-维护依赖并设计有效的推进方式",
-    "../../../METHOD.md#6-维护-agent-工作约定和审查规则":
-        "../../references/agent-config-methods.md#6-维护-agent-工作约定和审查规则",
-    "../../../METHOD.md#7-按变化维护-spec架构和决策":
-        "../../references/spec-design-methods.md#7-按变化维护-spec架构和决策",
-    "../../../METHOD.md#8-用-tdd-实施同时抑制没有依据的复杂度":
-        "../../references/implementation-methods.md#8-用-tdd-实施同时抑制没有依据的复杂度",
-    "../../../METHOD.md#9-按对象组织审查而不是机械增加审查轮次":
-        "../../references/review-methods.md#9-按对象组织审查而不是机械增加审查轮次",
-    "../../../METHOD.md#10-用适用证据判断完成和交付":
-        "../../references/evidence-methods.md#10-用适用证据判断完成和交付",
-    "../../../METHOD.md#11-根据新事实继续调整或停止":
-        "../../references/convergence-methods.md#11-根据新事实继续调整或停止",
-    "../../../specs/vision/spec.md":
-        "../../references/vision-behavior.md",
-    "../../../specs/project-context/spec.md":
-        "../../references/project-context-behavior.md",
-    "../../../specs/breakdown/spec.md":
-        "../../references/breakdown-behavior.md",
-    "../../../specs/review/spec.md":
-        "../../references/review-behavior.md",
-}
-
-RUNTIME_LINK_REWRITES = {
-    "../../METHOD.md": "shared-rules.md",
-    "../vision/spec.md": "vision-behavior.md",
-    "../project-context/spec.md": "project-context-behavior.md",
-    "../breakdown/spec.md": "breakdown-behavior.md",
-    "../review/spec.md": "review-behavior.md",
-}
-
-MARKDOWN_LINK_RE = re.compile(r"\[([^]]+)\]\(([^)]+)\)")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import validate_skills as validator  # noqa: E402
 
 
-def read_text(path: Path) -> str:
-    return path.read_text(encoding="utf-8").replace("\r\n", "\n")
-
-
-def selected_sections(source: Path, headings: tuple[str, ...]) -> str:
-    lines = read_text(source).splitlines()
-    configured = list(headings)
-    if len(configured) != len(set(configured)):
-        raise ValueError(f"duplicate configured section in {source}")
-
-    actual_headings = [line for line in lines if line.startswith("## ")]
-    for heading in configured:
-        matches = [line for line in actual_headings if line == heading]
-        if not matches:
-            candidates = [line for line in actual_headings if line.startswith(heading)]
-            detail = f"; similar headings: {candidates}" if candidates else ""
-            raise ValueError(
-                f"configured section must match exactly in {source}: {heading}{detail}"
-            )
-        if len(matches) > 1:
-            raise ValueError(f"duplicate source section in {source}: {heading}")
-
-    selected: list[str] = []
-    current: list[str] = []
-    wanted = set(configured)
-
-    def flush() -> None:
-        if current:
-            selected.extend(current)
-
-    for line in lines:
-        if line.startswith("## "):
-            flush()
-            current = [line] if line in wanted else []
-            continue
-        if current:
-            current.append(line)
-    flush()
-    if not selected:
-        raise ValueError(f"no configured sections found in {source}")
-    return "\n".join(selected).strip()
-
-
-def rewrite_runtime_links(text: str) -> str:
-    def replace(match: re.Match[str]) -> str:
-        label, target = match.groups()
-        path, separator, anchor = target.partition("#")
-        if path in RUNTIME_LINK_REWRITES:
-            rewritten = RUNTIME_LINK_REWRITES[path]
-            return f"[{label}]({rewritten}{separator}{anchor})"
-        if path.startswith("."):
-            return label
-        return match.group(0)
-
-    return MARKDOWN_LINK_RE.sub(replace, text)
-
-
-def runtime_reference(filename: str, source: Path, headings: tuple[str, ...]) -> str:
-    title = filename.removesuffix(".md").replace("-", " ").title()
-    body = rewrite_runtime_links(selected_sections(source, headings))
-    return (
-        f"# {title}\n\n"
-        "This runtime reference is generated from the repository's accepted method "
-        "and behavior sources. It is intentionally self-contained; edit the source "
-        "documents and rerun the assembly instead of hand-editing this file.\n\n"
-        f"{body}\n"
-    )
-
-
-def write_utf8(path: Path, content: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content.rstrip("\n") + "\n", encoding="utf-8", newline="\n")
-
-
-def assemble(destination: Path = PLUGIN) -> None:
-    if not destination.is_dir():
-        raise SystemExit(f"missing plugin destination: {destination}")
-
-    generated_dirs = (destination / "skills", destination / "references")
-    for directory in generated_dirs:
-        if directory.exists():
-            shutil.rmtree(directory)
-        directory.mkdir(parents=True)
-
-    for skill_name in SOURCE_SKILLS:
-        source = ROOT / ".agents" / "skills" / skill_name / "SKILL.md"
-        if not source.is_file():
-            raise SystemExit(f"missing source Skill: {source}")
-        content = read_text(source)
-        for old, new in SKILL_REFERENCE_REWRITES.items():
-            content = content.replace(old, new)
-        if "../../../" in content or "../../../../" in content:
-            raise ValueError(f"unconverted source path in {source}")
-        write_utf8(destination / "skills" / skill_name / "SKILL.md", content)
-
-    for filename, (source, headings) in REFERENCE_SECTIONS.items():
-        write_utf8(
-            destination / "references" / filename,
-            runtime_reference(filename, source, headings),
-        )
-
-    shutil.copyfile(ROOT / "LICENSE", destination / "LICENSE")
-    assert_package_links(destination)
-
-
-def assert_package_links(package: Path = PLUGIN) -> None:
-    for path in sorted(package.rglob("*.md")):
-        text = read_text(path)
-        if "../../../" in text or "../../../../" in text:
-            raise ValueError(f"package path escapes root: {path}")
-        for match in MARKDOWN_LINK_RE.finditer(text):
-            target = match.group(2).split("#", 1)[0]
-            if not target or target.startswith(("http://", "https://", "mailto:")):
-                continue
-            if not (path.parent / target).resolve().is_file():
-                raise ValueError(f"broken package link in {path}: {target}")
-
-
-def snapshot(package: Path = PLUGIN) -> dict[str, str]:
-    paths = sorted(
-        path
-        for path in package.rglob("*")
-        if path.is_file() and ".git" not in path.parts
-    )
+SOURCE_SKILLS = validator.SOURCE_SKILLS
+SHARED_RESOURCE_MAP = validator.SHARED_RESOURCE_MAP
+PLUGIN_RELATIVE = Path("plugins/vision-harness")
+def _ignored(_directory: str, names: list[str]) -> set[str]:
     return {
-        str(path.relative_to(package)): hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in paths
+        name
+        for name in names
+        if validator.is_development_artifact(Path(name))
     }
 
 
-def check_idempotent(package: Path = PLUGIN) -> None:
-    if not package.is_dir():
-        raise SystemExit(f"missing plugin package: {package}")
-    assert_package_links(package)
+def _copytree(source: Path, destination: Path) -> None:
+    shutil.copytree(
+        source,
+        destination,
+        copy_function=shutil.copy2,
+        ignore=_ignored,
+        symlinks=False,
+    )
 
-    with tempfile.TemporaryDirectory(prefix="vision-harness-assembly-") as temp_dir:
-        expected = Path(temp_dir) / package.name
-        shutil.copytree(package, expected)
-        assemble(expected)
-        first = snapshot(expected)
-        current = snapshot(package)
-        if current != first:
-            changed = sorted(
-                path
-                for path in set(current) | set(first)
-                if current.get(path) != first.get(path)
+
+def _validate_inputs(root: Path) -> None:
+    source_root = root / ".agents" / "skills"
+    plugin = root / PLUGIN_RELATIVE
+    shared_root = root / "skill-resources"
+    for path in (
+        root / ".agents",
+        source_root,
+        root / "plugins",
+        plugin,
+        shared_root,
+    ):
+        validator.reject_symlinks(path)
+    for name in SOURCE_SKILLS:
+        skill_file = source_root / name / "SKILL.md"
+        if not skill_file.is_file():
+            raise validator.ValidationError(f"missing source Skill: {skill_file}")
+    for filename in SHARED_RESOURCE_MAP:
+        path = root / "skill-resources" / filename
+        if not path.is_file():
+            raise validator.ValidationError(f"missing shared resource source: {path}")
+    for path in (
+        root / "LICENSE",
+        root / ".agents/plugins/marketplace.json",
+        root / PLUGIN_RELATIVE / ".codex-plugin/plugin.json",
+        root / PLUGIN_RELATIVE / "README.md",
+    ):
+        if not path.is_file():
+            raise validator.ValidationError(f"missing assembly input: {path}")
+        if path.is_symlink():
+            raise validator.ValidationError(f"assembly input may not be a symbolic link: {path}")
+    validator.validate_manifests(root)
+
+
+def _sync_source_generated(root: Path) -> None:
+    license_source = root / "LICENSE"
+    shared_root = root / "skill-resources"
+    for name in SOURCE_SKILLS:
+        skill = root / ".agents" / "skills" / name
+        references = skill / "references"
+        references.mkdir(parents=True, exist_ok=True)
+        for filename, recipients in SHARED_RESOURCE_MAP.items():
+            target = references / filename
+            if name in recipients:
+                shutil.copy2(shared_root / filename, target)
+            elif target.exists():
+                target.unlink()
+        shutil.copy2(license_source, skill / "LICENSE")
+
+
+def _source_generated_drift(root: Path) -> list[str]:
+    drift: list[str] = []
+    license_source = root / "LICENSE"
+    license_bytes = license_source.read_bytes()
+    license_mode = stat.S_IMODE(license_source.stat().st_mode) & 0o111
+    shared_names = set(SHARED_RESOURCE_MAP)
+    for name in SOURCE_SKILLS:
+        skill = root / ".agents" / "skills" / name
+        license_path = skill / "LICENSE"
+        if (
+            not license_path.is_file()
+            or license_path.read_bytes() != license_bytes
+            or stat.S_IMODE(license_path.stat().st_mode) & 0o111 != license_mode
+        ):
+            drift.append(str(license_path))
+        for filename, recipients in SHARED_RESOURCE_MAP.items():
+            target = skill / "references" / filename
+            if name in recipients:
+                source = root / "skill-resources" / filename
+                if (
+                    not target.is_file()
+                    or target.read_bytes() != source.read_bytes()
+                    or stat.S_IMODE(target.stat().st_mode) & 0o111
+                    != stat.S_IMODE(source.stat().st_mode) & 0o111
+                ):
+                    drift.append(str(target))
+            elif target.exists():
+                drift.append(str(target))
+        references = skill / "references"
+        if references.is_dir():
+            for path in references.glob("*.md"):
+                if path.name in shared_names and name not in SHARED_RESOURCE_MAP[path.name]:
+                    drift.append(str(path))
+    return sorted(set(drift))
+
+
+def _build_staging(root: Path, staging: Path) -> Path:
+    package = staging / "vision-harness"
+    package.mkdir()
+    shutil.copy2(root / PLUGIN_RELATIVE / "README.md", package / "README.md")
+    shutil.copy2(root / "LICENSE", package / "LICENSE")
+    (package / ".codex-plugin").mkdir()
+    shutil.copy2(
+        root / PLUGIN_RELATIVE / ".codex-plugin/plugin.json",
+        package / ".codex-plugin/plugin.json",
+    )
+    skills = package / "skills"
+    skills.mkdir()
+    license_bytes = (root / "LICENSE").read_bytes()
+    for name in SOURCE_SKILLS:
+        destination = skills / name
+        _copytree(root / ".agents" / "skills" / name, destination)
+        validator.validate_skill(destination, expected_license=license_bytes)
+    return package
+
+
+def tree_snapshot(
+    root: Path, *, exclude_development: bool = False
+) -> dict[str, tuple[str, int]]:
+    if not root.is_dir():
+        return {}
+    return {
+        str(path.relative_to(root)): (
+            hashlib.sha256(path.read_bytes()).hexdigest(),
+            stat.S_IMODE(path.stat().st_mode) & 0o111,
+        )
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+        and not (
+            exclude_development
+            and validator.is_development_artifact(path.relative_to(root))
+        )
+    }
+
+
+def _tree_differences(
+    actual: Path,
+    expected: Path,
+    *,
+    actual_excludes_development: bool = False,
+    expected_excludes_development: bool = False,
+) -> list[str]:
+    actual_state = tree_snapshot(actual, exclude_development=actual_excludes_development)
+    expected_state = tree_snapshot(expected, exclude_development=expected_excludes_development)
+    differences = []
+    for relative in sorted(set(actual_state) | set(expected_state)):
+        if relative not in actual_state:
+            differences.append(f"missing: {actual / relative}")
+        elif relative not in expected_state:
+            differences.append(f"extra: {actual / relative}")
+        elif actual_state[relative][0] != expected_state[relative][0]:
+            differences.append(f"content differs: {actual / relative}")
+        elif actual_state[relative][1] != expected_state[relative][1]:
+            differences.append(f"executable mode differs: {actual / relative}")
+    return differences
+
+
+def assemble(root: Path = ROOT) -> None:
+    root = Path(root).resolve()
+    _validate_inputs(root)
+    _sync_source_generated(root)
+    validator.validate_source(root)
+
+    plugin = root / PLUGIN_RELATIVE
+    plugin.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".vision-harness-stage-", dir=plugin.parent) as temp:
+        staged = _build_staging(root, Path(temp))
+        differences = []
+        for name in SOURCE_SKILLS:
+            differences.extend(
+                _tree_differences(
+                    staged / "skills" / name,
+                    root / ".agents" / "skills" / name,
+                    expected_excludes_development=True,
+                )
             )
-            raise SystemExit(f"plugin assembly drift: {', '.join(changed)}")
+        if differences:
+            raise validator.ValidationError("invalid staged Skill tree: " + "; ".join(differences))
 
-        assemble(expected)
-        second = snapshot(expected)
-        if first != second:
-            raise SystemExit("plugin assembly is not deterministic")
-    print(f"deterministic assembly passed: {len(first)} package files")
+        incoming = staged / "skills"
+        current = plugin / "skills"
+        backup = Path(temp) / "previous-skills"
+        if current.exists():
+            os.replace(current, backup)
+        try:
+            os.replace(incoming, current)
+        except Exception:
+            if backup.exists() and not current.exists():
+                os.replace(backup, current)
+            raise
+        if backup.exists():
+            shutil.rmtree(backup)
+        shutil.copy2(staged / "LICENSE", plugin / "LICENSE")
+        obsolete = plugin / "references"
+        if obsolete.exists():
+            shutil.rmtree(obsolete)
+
+    validator.validate_package(root)
+    print(f"assembled {len(SOURCE_SKILLS)} self-contained Skills: {plugin}")
+
+
+def check(root: Path = ROOT) -> None:
+    root = Path(root).resolve()
+    _validate_inputs(root)
+    drift = _source_generated_drift(root)
+    if drift:
+        raise SystemExit("generated source drift: " + ", ".join(drift))
+    validator.validate_source(root)
+    plugin = root / PLUGIN_RELATIVE
+    with tempfile.TemporaryDirectory(prefix="vision-harness-check-") as temp:
+        expected = _build_staging(root, Path(temp))
+        differences = _tree_differences(plugin, expected)
+    if differences:
+        raise SystemExit("plugin assembly drift:\n" + "\n".join(differences))
+    validator.validate_package(root)
+    print(f"read-only assembly check passed: {len(tree_snapshot(plugin))} files")
+
+
+def _unsafe_output(output: Path, root: Path) -> bool:
+    resolved = output.resolve(strict=False)
+    repository = root.resolve()
+    return resolved == repository or resolved.is_relative_to(repository) or repository.is_relative_to(resolved)
+
+
+def export_skill(name: str, output: Path, root: Path = ROOT) -> Path:
+    root = Path(root).resolve()
+    if name == "method-evaluation" or name not in SOURCE_SKILLS:
+        raise ValueError(f"Skill is not exportable: {name}")
+    output = Path(output)
+    if _unsafe_output(output, root):
+        raise ValueError(f"output may not point into or contain the repository: {output}")
+    validator.validate_source(root)
+    validator.validate_package(root)
+    source = root / ".agents" / "skills" / name
+    packaged = root / PLUGIN_RELATIVE / "skills" / name
+    if tree_snapshot(source, exclude_development=True) != tree_snapshot(packaged):
+        raise ValueError(f"source Skill does not match packaged Skill: {name}")
+    target = output.resolve(strict=False) / name
+    if target.exists():
+        if target.is_dir() and not any(target.iterdir()):
+            target.rmdir()
+        else:
+            raise ValueError(f"export target already exists and is not empty: {target}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    _copytree(source, target)
+    validator.validate_skill(target)
+    if tree_snapshot(target) != tree_snapshot(packaged):
+        shutil.rmtree(target)
+        raise ValueError(f"export differs from packaged Skill: {name}")
+    return target
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--check",
-        action="store_true",
-        help=(
-            "compare the package with an independent deterministic assembly "
-            "without rewriting it"
-        ),
-    )
+    parser.add_argument("--check", action="store_true", help="read-only source and package drift check")
+    parser.add_argument("--export-skill", metavar="NAME", help="export one ordinary Skill")
+    parser.add_argument("--output", type=Path, help="parent directory for --export-skill")
     args = parser.parse_args()
-    check_idempotent() if args.check else assemble()
+    try:
+        if args.check:
+            if args.export_skill or args.output:
+                parser.error("--check cannot be combined with export options")
+            check(ROOT)
+        elif args.export_skill:
+            if args.output is None:
+                parser.error("--export-skill requires --output")
+            target = export_skill(args.export_skill, args.output, ROOT)
+            print(f"exported Skill: {target}")
+        elif args.output:
+            parser.error("--output requires --export-skill")
+        else:
+            assemble(ROOT)
+    except (validator.ValidationError, ValueError) as exc:
+        raise SystemExit(str(exc)) from exc
 
 
 if __name__ == "__main__":
