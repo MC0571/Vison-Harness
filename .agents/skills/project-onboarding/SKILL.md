@@ -1,40 +1,24 @@
 ---
 name: project-onboarding
-description: Help a new or existing project adopt Vision Harness by identifying real gaps and making only the authorized, minimum integration changes.
+description: 按真实缺口帮助新项目或既有项目采用 Vision Harness，复用已有事实与布局，只做获准的最少接入修改。
 ---
 
 # Project Onboarding
 
-Use this entry when a project is new to the method or when the user asks whether an existing project needs to be connected. Read the [project-context behavior rules](../../../specs/project-context/spec.md) and [shared operating rules](../../../METHOD.md) before assessing gaps. The result is a gap assessment and, when explicitly authorized, the smallest useful changes. It is not a template generator.
+交付项目采用差距判断，以及明确授权下最少必要的接入修改。它不是模板生成器，也不要求项目重建目录或重新写一套愿景。
 
-## Inspect before changing
+## 核心过程
 
-1. Confirm the target project and read its applicable `AGENTS.md` files, existing `VISION.md` or organization-level equivalent, architecture/Spec entry points, current planning source, and relevant work item. The package's own examples are not project facts.
-2. Discover real commands and host conditions from files that exist in the target project (`package.json`, `pyproject.toml`, `Cargo.toml`, `Makefile`, CI configuration, and documented scripts as applicable). Never invent a test or build command.
-3. Record which of these are already sufficient: a readable long-term goal, a current planning entry, project instructions, and an actual host loading/install path. Distinguish “file exists”, “an Agent can read it”, and “the host loads it automatically”.
-4. Report each remaining gap with its effect on the requested work. A missing remote integration or unrelated future Skill is not a reason to rebuild a usable project.
+1. 确认目标项目、宿主、允许修改范围和停止位置。
+2. 读取现有愿景/等价入口、规划来源、适用 AGENTS.md、Spec/架构入口和真实构建测试配置。
+3. 区分“文件存在”“Agent 可手动读取”“宿主会自动加载”。新会话恢复、组织级事实或加载规则不清时，读取[项目上下文行为约定](../../../specs/project-context/spec.md)。
+4. 逐项判断哪些已经足够、哪些缺口实际影响本次使用。缺少愿景交给 vision-management；缺少规划交给 breakdown；缺少 Agent/审查配置交给 agent-instructions。
+5. 只要求评估时零写入；获准修改时完整读取目标、保留无关内容、写后回读。
 
-## Choose the smallest next action
+涉及授权、安全写入或“是否已经足够”的判断时读取[共享规则](../../../METHOD.md#1-先确认本轮任务和授权)。涉及 AGENTS/审查入口具体维护时再读取[Agent 配置方法](../../../METHOD.md#6-维护-agent-工作约定和审查规则)。
 
-- Reuse an existing vision, directory layout, issue/plan, and rule file when they already carry the needed fact. Do not create a second `VISION.md`, parallel roadmap, or private state file.
-- If a goal is unclear, hand the relevant gap to `vision-management`; do not fill the user's product decision from the package's vision.
-- If a plan is missing but the goal is sufficient and planning is requested, hand off to `breakdown`; do not turn onboarding into implementation.
-- If a rule is missing or a true local difference exists, hand off to `agent-instructions`. No local difference means no local `AGENTS.md`.
-- If project-specific review rules or a real review entry are missing, hand the bounded gap to [review-setup](../review-setup/SKILL.md). Reuse a sufficient existing setup; do not require three rule files or three reviewers.
-- If the request only asks for assessment, stop without writing. If writing is authorized, name the exact files and preserve unrelated rules before writing and reread each file afterward.
-- Installing or updating this package must not overwrite the consumer project's vision, instructions, plans, custom rules, or source tree. If a proposed action would do so, stop and report the boundary.
+## 不应发生
 
-## Finish with an adoption result
+不要创建平行 VISION、ROADMAP、状态库或固定审查文件套餐；不要猜测不存在的命令；安装/更新方法包不得覆盖消费项目愿景、规则、规划、自定义配置或代码。
 
-Return:
-
-```text
-Target: project and working directory
-Reused: existing authoritative facts and paths
-Gaps: only gaps that affect this request
-Allowed change: exact files/objects, or “read-only”
-Next method: the direct Skill or action that owns the gap
-Stop: the boundary for this onboarding turn
-```
-
-Do not claim the project is “adopted” merely because a package installed, a file exists, or a host entry was suggested. The project is ready only to the extent supported by the facts and checks actually performed.
+结束时说明复用内容、真实缺口、实际写入/零写入结果、仍未验证的宿主加载事实及下一直接入口。
