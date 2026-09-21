@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import shutil
 import tempfile
@@ -148,6 +149,35 @@ def test_review_is_one_entry_with_three_objects() -> None:
     assert "不自动修改被审查对象" in text
 
 
+def test_work_entry_routing_eval_is_paired_and_unique() -> None:
+    path = ROOT / "evals" / "work-entry-routing" / "cases.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    cases = payload["cases"]
+    ids = [case["id"] for case in cases]
+    assert len(ids) == len(set(ids))
+    assert len(cases) >= 12
+
+    targets = {
+        target
+        for case in cases
+        for target in case.get("targets", [])
+    }
+    for expected in (
+        "routing",
+        "stop",
+        "continue",
+        "review",
+        "critical-assumptions",
+        "evidence-reuse",
+        "agent-config",
+    ):
+        assert expected in targets
+
+    text = path.read_text(encoding="utf-8")
+    for removed in REMOVED_ENTRIES:
+        assert f'"expected_skill": "{removed}"' not in text
+
+
 def test_check_detects_drift_without_rewriting_package() -> None:
     with tempfile.TemporaryDirectory(prefix="vision-harness-check-") as temp_dir:
         package = Path(temp_dir) / "vision-harness"
@@ -202,6 +232,7 @@ if __name__ == "__main__":
     test_runtime_references_are_focused_and_complete()
     test_removed_entries_do_not_leak_into_runtime_skill_links()
     test_review_is_one_entry_with_three_objects()
+    test_work_entry_routing_eval_is_paired_and_unique()
     test_check_detects_drift_without_rewriting_package()
     test_selected_sections_rejects_missing_or_duplicate_sections()
     print("assembly checks passed")
