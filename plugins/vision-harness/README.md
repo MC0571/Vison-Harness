@@ -47,6 +47,8 @@ SKILL.md 只保留结果、使用边界、执行骨架、关键授权规则和 r
 
 不要在开始任务时预读全部 references。Skill 中写明了何时加载哪一份。
 
+当前支持的安装单元是整个 vision-harness Plugin。不要把单个 skills/<name>/ 目录当成独立可分发包复制；这些 Skill 依赖同一 Plugin 内的 references。若未来新增单 Skill 安装方式，必须由构建步骤把依赖资源一起打包并通过断链检查。
+
 ## 本地安装
 
 先检出准备使用的分支或提交，再使用仓库根 marketplace：

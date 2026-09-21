@@ -105,7 +105,7 @@ SKILL.md 保留不能隐藏的规则：只审查不自动修改、当前切片�
 
 .agents/skills/ 是研发源；plugins/vision-harness/skills/ 与 references/ 是 scripts/assemble_plugin.py 生成的普通用户包。清单显式选择普通入口；method-evaluation 只留研发仓库。
 
-运行 reference 从 METHOD/行为 Spec 的指定章节确定性生成。包内 Skill 的所有相对引用必须指向包内资源；普通 Plugin 安装不依赖研发源码、旧安装或其他同名 Skill。装配测试负责检查 Skill 集合、断链、生成漂移、reference 归属和已移除入口不再泄漏。
+运行 reference 从 METHOD/行为 Spec 的指定章节确定性生成。包内 Skill 的所有相对引用必须指向包内资源；普通 Plugin 安装不依赖研发源码、旧安装或其他同名 Skill。当前正式分发边界是整个 Plugin；.agents/skills/ 与包内 skills/<name>/ 都不是声明为可单独复制安装的自包含分发单元。若未来提供单 Skill 安装，构建必须把该 Skill 所需 references/scripts/assets 一并物化，并增加相应完整性测试。装配测试负责检查 Skill 集合、断链、生成漂移、reference 归属和已移除入口不再泄漏。
 
 当前没有独立 Claude/Cursor/Copilot 适配层；仓库提供通用 Skill 源和 Codex Plugin/marketplace 清单。其他宿主只有在实际适配和验证存在时才声明支持。
 
