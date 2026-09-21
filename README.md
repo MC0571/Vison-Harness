@@ -16,27 +16,23 @@ Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Pl
 
 ## 当前提供的实现
 
-`vision-harness` Plugin 候选 `0.2.0-alpha.1` 已为架构中的一个入口和十八类用户工作提供 Skill 指令及分发文件。维护者的 `method-evaluation` 位于研发仓库，不装配进普通用户 Plugin。这里说明的是已经提交的实现范围，不代表新增能力已经通过运行验收。
+vision-harness Plugin 候选 0.3.0-alpha.1 将普通分发收敛为 12 个明确工作入口 + 按条件加载的 references。维护者的 method-evaluation 仍只存在研发仓库。
 
-| 工作范围 | 已提供的 Skill 实现 |
+| 工作范围 | 当前入口 |
 | --- | --- |
-| 入口、接入与愿景 | `using-vision-harness`、`project-onboarding`、`vision-management` |
-| 调查、规划与协调 | `assumption-validation`、`breakdown`、`issue-shaping`、`delivery-coordination` |
-| 规格、设计与实施 | `spec-development`、`technical-design`、`tdd-development`、`simplification` |
-| 审查、验证与交付 | `spec-review`、`code-review`、`pr-review`、`change-verification`、`release-delivery` |
-| 纠偏与规则维护 | `project-convergence`、`agent-instructions`、`review-setup` |
+| 识别、接入与愿景 | using-vision-harness、project-onboarding、vision-management |
+| 规划、单项整理与交付协调 | breakdown |
+| Spec、设计与实施 | spec-development、technical-design、tdd-development |
+| 审查、验证与交付 | review、change-verification、release-delivery |
+| 系统收敛与 Agent 配置 | project-convergence、agent-instructions |
 
-安装、工作入口和开发装配命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。各 Skill 提供工作方法、条件分支、交接和结束判断；按任务选择，不执行十九步流水线。工具操作由宿主已有能力承担，不新增自有调度器、权限系统或项目数据库。
+关键假设、Issue shaping、delivery coordination、复杂度控制、evidence reuse、Architecture Impact、behavioral slicing、review setup 等职责没有删除，而是作为共享方法按条件加载。完整归属、reference 条件和 Eval 覆盖见 [产品架构](ARCHITECTURE.md)。
 
-### 实现与验收分开说明
+安装、工作入口和开发装配命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。工具操作由宿主已有能力承担，不新增自有调度器、权限系统或项目数据库。
 
-完整入口的实现由 [PR #38](https://github.com/MC0571/Vison-Harness/pull/38) 承载，具体提交、迭代内容和未执行项目保存在该工作记录中。构件生成、测试、宿主安装、用户任务完成及独立验收是不同结果，不能用入口数量或文件存在代替。
+上一轮十九个平级入口的实现记录在 [PR #38](https://github.com/MC0571/Vison-Harness/pull/38)，只作为旧候选历史。本次候选重构入口边界、运行 references 与验证设计；旧候选的结构或行为结论不能自动外推。
 
-当前迭代未运行完整装配检查、测试、安装演练或新的 Agent 行为验收，也未公开发布。本轮交付的是完整入口范围的实现与分发内容，不是新增工作路径已经可靠的结论。构建和检查命令分别列在包内说明中，提供命令不表示已经执行。
-
-历史首阶段的五个 Skill、安装更新、多轮 Vision、本地规划与无旧聊天接续证据见 [#16 验收记录](https://github.com/MC0571/Vison-Harness/issues/16#issuecomment-5743410799)。该证据绑定旧候选与 Codex CLI `0.155.0-alpha.9.2` 的受控环境，不能自动扩到本候选、新增工作、真实 GitHub 写入、自动触发或其他宿主。
-
-> **以下内容说明如何使用这些工作方法，不是新候选的逐项运行结果或验收声明。**
+构件生成、装配检查、宿主安装、真实 Agent 任务、独立验收和发布仍是不同结果。当前提交环境未执行真实宿主安装或新的 Agent 行为验收；提供检查命令不等于已经执行。
 
 ## 从一个模糊想法开始
 
@@ -108,18 +104,22 @@ Breakdown 保留现有名称，承担整体规划与滚动细化；候选名称 
 
 ## 按工作选择能力
 
-完整职责是一个入口、十八类工作和维护者方法评估，不是二十步流水线。具体映射与协作见 [产品架构](ARCHITECTURE.md)。例如：
+普通包的十二个入口不是固定流水线。直接请求某项工作时可以直接进入对应 Skill；横切方法在入口内部按条件加载。
 
-| 用户请求 | 对应工作与停止位置 |
+| 用户请求 | 入口与停止位置 |
 | --- | --- |
-| “继续这个 Issue” | 入口只恢复相关事实和权限，选择当前工作；不重做愿景或项目初始化 |
-| “把已有仓库接入这套方法” | project-onboarding 查真实缺口，按需组合愿景、规划、指引或审查配置；已有内容足够就复用 |
-| “这项任务到底做到哪里？” | issue-shaping 整理单项承诺，不重新规划整个产品 |
-| “这几项工作怎样更快交付？” | delivery-coordination 处理真实依赖、分工和集成；未授权实施就停在方案 |
-| “只审查 Spec / 代码 / PR” | 分别选择对应审查；验证获取证据，审查形成判断，不自动修复、合并或发布 |
-| “这些规则太重了” | simplification 诊断复杂度及成本；需要改指引或审查配置时交给相应维护工作 |
+| “继续这个 Issue” | 有明确实施范围就直接进入 tdd-development；不强制重做愿景或项目接入 |
+| “把已有仓库接入这套方法” | project-onboarding 查真实缺口，已有事实足够就复用 |
+| “这项 Issue 到底做到哪里？” | breakdown 单项模式整理范围与完成条件，不重新规划整个产品 |
+| “这几项怎样并行并集成？” | breakdown 协调模式处理真实依赖、修改边界和统一候选 |
+| “只审查 Spec / 代码 / PR” | 统一 review 按对象形成判断；review-only 不自动修复、合并或发布 |
+| “验证这个候选” | change-verification 运行或复用与风险相称的证据 |
+| “这些实现太复杂” | 代码修改由 tdd-development 加载复杂度方法；长期设计问题由 technical-design；系统治理负担由 project-convergence |
+| “建立/维护 AGENTS 或 reviewer 配置” | agent-instructions 按项目差异维护，不强制固定文件套餐 |
 
-完整设计中的每个工作 Skill 都应可被直接调用，仍要核对自己的依据与授权。入口不是必经关卡，也不凭它的存在就承诺宿主会自动加载。具体调用取决于宿主实际加载的候选；缺失入口应明确报告，不能假称已执行。
+例如，技术设计中遇到会推翻方案的未知，不再切换到独立 Assumption Skill，而是在当前设计中加载关键假设方法；Review 发现某项旧证据不再覆盖当前 head，只补验受影响部分。
+
+如果现有事实已经足够，就直接推进；不能因为远期规划尚未完成、无关 reference 没加载或文档数量不足而扩大前置工作。
 
 ## 帮助安排依赖和并行
 

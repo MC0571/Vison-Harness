@@ -1,67 +1,30 @@
 ---
 name: breakdown
-description: Turn an accepted project vision into concrete product delivery planning, refine the next delivery batch after facts change, or review and revise an existing abstract plan. Use for product breakdown, milestone/FR planning, dependency and parallel-work planning, or planning migration; do not use to implement the planned product.
+description: 负责全景规划、滚动细化、单项工作整理，以及一批工作的依赖/并行/集成协调；只要方案时止于方案，获准执行时持续到真实交接与统一候选整合或明确停止边界。
 ---
 
 # Breakdown
 
-Build a plan that keeps the complete confirmed goal visible while making only the next useful delivery batch implementation-ready.
+Breakdown 是工作图与交付规划入口，支持三种直接模式：全景/滚动规划、单项工作整理、交付协调。三者共享同一组产品承诺、GitHub 工作事实和写入边界，因此不要求串行经过多个 Skill。
 
-Before acting, read the applicable project rules and the current sources of truth. For Vision Harness behavior, use [the Breakdown specification](../../references/breakdown-behavior.md); use [METHOD.md](../../references/shared-rules.md) for shared authorization, evidence, dependency, and completion rules. Do not copy those rules into the output.
+## 先选择模式
 
-## Establish the task
+- 全景或下一批规划：读取[Breakdown 行为约定](../../references/breakdown-behavior.md)。
+- 整理一个 Issue、缺陷、调查或重构承诺：读取[规划与协调方法](../../references/planning-methods.md#3-保留完整目标但明确本次交付)中的单项工作部分。
+- 安排多项依赖、并行、交接与统一候选：读取[规划与协调方法](../../references/planning-methods.md#4-维护依赖并设计有效的推进方式)。
+- 若某个未知一旦失败会推翻当前路线，同一规划方法中执行关键假设验证；不要为了这个横切判断再切换独立入口。
 
-1. Identify whether the request is an initial breakdown, next-batch refinement, or review/revision of an existing plan.
-2. State the requested result, allowed side effects, and stopping boundary. Read access never implies write authorization.
-3. Read only the current facts needed for this decision: the project vision, applicable rules, accepted decisions, relevant issues/milestones, dependencies, and evidence. Prefer live project systems over handoff summaries.
-4. Separate confirmed goals, candidate choices, assumptions, unknowns, deferred work, and non-goals. Ask only about a gap that changes the current product boundary or next decision.
+## 执行骨架
 
-## Produce concrete delivery planning
+1. 确认请求粒度、当前工作图、允许的 GitHub/文件副作用和停止位置。
+2. 恢复足够的愿景、有效决定、已有工作、依赖和证据；不重新调查无关历史。
+3. 保持确认目标、未知、Deferred 与 Non-goal 分开。当前切片不能冒充完整目标，长期能力未完成也不自动阻塞本批。
+4. 全景模式把目标连接到真实产品交付、阶段结果和近期可接手工作；单项模式形成可判断范围与完成条件；协调模式说明真实依赖、并行修改边界、交接条件、集成责任和组合候选重验。
+5. 协调模式必须区分停止位置：用户只要方案时，到可执行协调方案为止且零实施；用户已经授权协调推进和集成时，读取[规划与协调方法](../../references/planning-methods.md#4-维护依赖并设计有效的推进方式)的执行期协调规则，持续核对真实交接产物、按变化局部调整，并通过需要的实施、交付和验证入口把结果整合到同一准确候选。不能在只有方案时宣称执行协调完成。
+6. 已有等价对象直接复用。只在授权内修改工作系统，写前重读、写后回读；结果不明先查询。
 
-- Map every confirmed goal to a concrete product object, an explicit unresolved decision, or an existing work item that already carries it.
-- Use objects native to the product. For a Plugin, consider actual Skills, necessary packaged material, tools, distribution entry points, and only evidence-backed Hooks. Do not force these objects onto a CLI, library, or application.
-- Connect stage outcomes to user- or upstream-visible results, the deliverables that provide them, and evidence that could support the result. Planned validation is not evidence already obtained.
-- Keep future stages coarse. Make the next batch specific enough to enter exploration, Spec, design, implementation, or validation without redefining the product.
-- Reuse valid issues, milestones, identities, decisions, and evidence. Do not create a new layer or duplicate item merely to make the plan look complete.
-- Do not require a fixed tree, fixed number of components, or one-to-one mapping among goals, FRs, components, milestones, and work items.
+授权、安全写入与治理比例读取[共享规则](../../references/shared-rules.md#1-先确认本轮任务和授权)。
 
-For each important dependency, name the missing result, the stage it blocks, and the condition that removes the block. Treat priority, parentage, and shared goals as distinct from dependency. When work can proceed in parallel, include the shared contract, modification boundaries, integration owner or unresolved ownership, integration order, and the checks to repeat on the combined candidate.
+## 完成与停止
 
-## Refine or review existing planning
-
-When facts change, preserve unaffected goals, work identities, decisions, and evidence. Change only the affected next batch; do not rebuild the whole plan or expand distant work.
-
-When reviewing a plan, check separately:
-
-1. Do all confirmed goals still have an owner or explicit unresolved decision?
-2. Are the real product entry points and deliverables visible, rather than only capability labels or renamed titles?
-3. If every lower-level item finished, could the upper-level user result still be missing because integration, packaging, invocation, behavior, or evidence is absent?
-4. Does each stage's evidence plan support the result it intends to claim?
-5. Do recorded relationships and statuses match the current facts and actual operations?
-
-Recommend retaining, revising, splitting, merging, replacing, or stopping existing items only where needed. Preserve valid commitments and history, and state where a still-valid goal moves when its old route stops. If the current plan is already usable and no fact changed, say so and point to the existing next step.
-
-## Apply only authorized writes
-
-In advice-only or review-only work, make no repository or project-system writes.
-
-When planning writes are authorized:
-
-1. Re-read each target and search for an equivalent existing object.
-2. Preserve unrelated current content and handle concurrent changes instead of overwriting from an old snapshot.
-3. Perform only the authorized planning changes.
-4. Re-read bodies, native relationships, and states after writing.
-5. If a result is unknown, query before retrying. If a tool cannot express the required operation, report the gap; do not imitate a native relation with prose or create a parallel state store.
-
-Never infer authorization for code implementation, merge, release, global migration, deletion, or bulk rewriting from approval to plan.
-
-## Finish
-
-Keep these conclusions distinct:
-
-- goal coverage;
-- planning usability and the next actionable batch;
-- actual project-system operations, including not requested, succeeded and re-read, failed, or unverified;
-- unknowns, deferred work, evidence gaps, and the stopping boundary.
-
-Before calling the plan usable, verify that its requested level of goals, deliverables, dependencies, and validation is sufficient. A usable plan is not an implemented product and does not grant permission to execute the next batch.
+全景规划可用、单项承诺可接手即可结束。协调只给方案时，可执行方案就是正确终点；获准执行协调时，只有本轮真实交接已核验、统一候选已经形成并取得必要的受影响验证，或遇到明确授权/依赖/工具/失败边界时才结束。没有新事实时允许零修改。Breakdown 本身不产生合并或发布授权。

@@ -18,22 +18,15 @@ SOURCE_SKILLS = (
     "using-vision-harness",
     "project-onboarding",
     "vision-management",
-    "agent-instructions",
     "breakdown",
-    "assumption-validation",
-    "issue-shaping",
-    "delivery-coordination",
     "spec-development",
     "technical-design",
     "tdd-development",
-    "simplification",
-    "spec-review",
-    "code-review",
-    "pr-review",
+    "review",
     "change-verification",
     "release-delivery",
     "project-convergence",
-    "review-setup",
+    "agent-instructions",
 )
 
 # method-evaluation is a maintainer entry, not part of the ordinary distribution.
@@ -42,22 +35,40 @@ REFERENCE_SECTIONS = {
         ROOT / "METHOD.md",
         (
             "## 1. 先确认本轮任务和授权",
-            "## 3. 保留完整目标，但明确本次交付",
             "## 5. 正确读取和安全修改项目事实",
-            "## 6. 维护 Agent 工作约定和审查规则",
-            "## 8. 用 TDD 实施，同时抑制没有依据的复杂度",
-            "## 10. 用适用证据判断完成和交付",
-            "## 11. 根据新事实继续、调整或停止",
             "## 12. 方法必须同时防止草率和过度治理",
         ),
     ),
-    "engineering-rules.md": (
+    "planning-methods.md": (
         ROOT / "METHOD.md",
         (
+            "## 3. 保留完整目标，但明确本次交付",
             "## 4. 维护依赖，并设计有效的推进方式",
-            "## 7. 按变化维护 Spec、架构和决策",
-            "## 9. 按对象组织审查，而不是机械增加审查轮次",
         ),
+    ),
+    "agent-config-methods.md": (
+        ROOT / "METHOD.md",
+        ("## 6. 维护 Agent 工作约定和审查规则",),
+    ),
+    "spec-design-methods.md": (
+        ROOT / "METHOD.md",
+        ("## 7. 按变化维护 Spec、架构和决策",),
+    ),
+    "implementation-methods.md": (
+        ROOT / "METHOD.md",
+        ("## 8. 用 TDD 实施，同时抑制没有依据的复杂度",),
+    ),
+    "review-methods.md": (
+        ROOT / "METHOD.md",
+        ("## 9. 按对象组织审查，而不是机械增加审查轮次",),
+    ),
+    "evidence-methods.md": (
+        ROOT / "METHOD.md",
+        ("## 10. 用适用证据判断完成和交付",),
+    ),
+    "convergence-methods.md": (
+        ROOT / "METHOD.md",
+        ("## 11. 根据新事实继续、调整或停止",),
     ),
     "vision-behavior.md": (
         ROOT / "specs" / "vision" / "spec.md",
@@ -91,16 +102,44 @@ REFERENCE_SECTIONS = {
             "## 输出与结束",
         ),
     ),
+    "review-behavior.md": (
+        ROOT / "specs" / "review" / "spec.md",
+        (
+            "## 适用对象与授权边界",
+            "## 证据与候选",
+            "## 三类审查",
+            "## 结果与后续",
+        ),
+    ),
 }
 
 SKILL_REFERENCE_REWRITES = {
-    "../../../METHOD.md#4-维护依赖并设计有效的推进方式": "../../references/engineering-rules.md#4-维护依赖并设计有效的推进方式",
-    "../../../METHOD.md#7-按变化维护-spec架构和决策": "../../references/engineering-rules.md#7-按变化维护-spec架构和决策",
-    "../../../METHOD.md#9-按对象组织审查而不是机械增加审查轮次": "../../references/engineering-rules.md#9-按对象组织审查而不是机械增加审查轮次",
-    "../../../METHOD.md": "../../references/shared-rules.md",
-    "../../../specs/vision/spec.md": "../../references/vision-behavior.md",
-    "../../../specs/project-context/spec.md": "../../references/project-context-behavior.md",
-    "../../../specs/breakdown/spec.md": "../../references/breakdown-behavior.md",
+    "../../../METHOD.md#1-先确认本轮任务和授权":
+        "../../references/shared-rules.md#1-先确认本轮任务和授权",
+    "../../../METHOD.md#3-保留完整目标但明确本次交付":
+        "../../references/planning-methods.md#3-保留完整目标但明确本次交付",
+    "../../../METHOD.md#4-维护依赖并设计有效的推进方式":
+        "../../references/planning-methods.md#4-维护依赖并设计有效的推进方式",
+    "../../../METHOD.md#6-维护-agent-工作约定和审查规则":
+        "../../references/agent-config-methods.md#6-维护-agent-工作约定和审查规则",
+    "../../../METHOD.md#7-按变化维护-spec架构和决策":
+        "../../references/spec-design-methods.md#7-按变化维护-spec架构和决策",
+    "../../../METHOD.md#8-用-tdd-实施同时抑制没有依据的复杂度":
+        "../../references/implementation-methods.md#8-用-tdd-实施同时抑制没有依据的复杂度",
+    "../../../METHOD.md#9-按对象组织审查而不是机械增加审查轮次":
+        "../../references/review-methods.md#9-按对象组织审查而不是机械增加审查轮次",
+    "../../../METHOD.md#10-用适用证据判断完成和交付":
+        "../../references/evidence-methods.md#10-用适用证据判断完成和交付",
+    "../../../METHOD.md#11-根据新事实继续调整或停止":
+        "../../references/convergence-methods.md#11-根据新事实继续调整或停止",
+    "../../../specs/vision/spec.md":
+        "../../references/vision-behavior.md",
+    "../../../specs/project-context/spec.md":
+        "../../references/project-context-behavior.md",
+    "../../../specs/breakdown/spec.md":
+        "../../references/breakdown-behavior.md",
+    "../../../specs/review/spec.md":
+        "../../references/review-behavior.md",
 }
 
 RUNTIME_LINK_REWRITES = {
@@ -108,6 +147,7 @@ RUNTIME_LINK_REWRITES = {
     "../vision/spec.md": "vision-behavior.md",
     "../project-context/spec.md": "project-context-behavior.md",
     "../breakdown/spec.md": "breakdown-behavior.md",
+    "../review/spec.md": "review-behavior.md",
 }
 
 MARKDOWN_LINK_RE = re.compile(r"\[([^]]+)\]\(([^)]+)\)")
@@ -129,7 +169,9 @@ def selected_sections(source: Path, headings: tuple[str, ...]) -> str:
         if not matches:
             candidates = [line for line in actual_headings if line.startswith(heading)]
             detail = f"; similar headings: {candidates}" if candidates else ""
-            raise ValueError(f"configured section must match exactly in {source}: {heading}{detail}")
+            raise ValueError(
+                f"configured section must match exactly in {source}: {heading}{detail}"
+            )
         if len(matches) > 1:
             raise ValueError(f"duplicate source section in {source}: {heading}")
 
@@ -173,9 +215,9 @@ def runtime_reference(filename: str, source: Path, headings: tuple[str, ...]) ->
     body = rewrite_runtime_links(selected_sections(source, headings))
     return (
         f"# {title}\n\n"
-        "This runtime reference is generated from the repository's accepted method and behavior "
-        "sources. It is intentionally self-contained; edit the source documents and rerun the "
-        "assembly instead of hand-editing this file.\n\n"
+        "This runtime reference is generated from the repository's accepted method "
+        "and behavior sources. It is intentionally self-contained; edit the source "
+        "documents and rerun the assembly instead of hand-editing this file.\n\n"
         f"{body}\n"
     )
 
@@ -207,7 +249,10 @@ def assemble(destination: Path = PLUGIN) -> None:
         write_utf8(destination / "skills" / skill_name / "SKILL.md", content)
 
     for filename, (source, headings) in REFERENCE_SECTIONS.items():
-        write_utf8(destination / "references" / filename, runtime_reference(filename, source, headings))
+        write_utf8(
+            destination / "references" / filename,
+            runtime_reference(filename, source, headings),
+        )
 
     shutil.copyfile(ROOT / "LICENSE", destination / "LICENSE")
     assert_package_links(destination)
@@ -239,7 +284,6 @@ def snapshot(package: Path = PLUGIN) -> dict[str, str]:
 
 
 def check_idempotent(package: Path = PLUGIN) -> None:
-    """Compare the package with an independently assembled copy without mutating it."""
     if not package.is_dir():
         raise SystemExit(f"missing plugin package: {package}")
     assert_package_links(package)
@@ -270,7 +314,10 @@ def main() -> None:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="compare the package with an independent deterministic assembly without rewriting it",
+        help=(
+            "compare the package with an independent deterministic assembly "
+            "without rewriting it"
+        ),
     )
     args = parser.parse_args()
     check_idempotent() if args.check else assemble()
