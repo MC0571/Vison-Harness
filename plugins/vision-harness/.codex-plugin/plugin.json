@@ -1,7 +1,7 @@
 {
   "name": "vision-harness",
-  "version": "0.3.0-alpha.1",
-  "description": "少量明确工作入口 + 按条件加载的工程方法 references，覆盖愿景、规划、Spec、设计、实施、审查、验证、交付与长期收敛。",
+  "version": "0.4.0-alpha.1",
+  "description": "十二个资源自包含、可独立使用的工程 Skills，并以 Plugin 组合分发。",
   "author": {
     "name": "MC0571",
     "url": "https://github.com/MC0571"
@@ -20,8 +20,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Vision Harness",
-    "shortDescription": "从愿景到交付与收敛：少量工作入口，方法按条件加载。",
-    "longDescription": "Vision Harness 提供十二个普通工作入口，把 issue shaping、关键假设、交付协调、复杂度控制和对象审查等横切方法放入按条件加载的 references，在不建立平行项目状态系统的前提下帮助 Agent 持续交付。",
+    "shortDescription": "从愿景到交付：十二个自包含、可独立使用的工程 Skills。",
+    "longDescription": "Vision Harness 提供十二个普通工作入口；每个 Skill 都包含完整方法和本地资源，也可由 Plugin 组合分发，在不建立平行项目状态系统的前提下帮助 Agent 持续交付。",
     "developerName": "MC0571",
     "category": "Productivity",
     "capabilities": [

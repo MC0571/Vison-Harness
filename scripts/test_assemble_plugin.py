@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic checks for distribution assembly and entry boundaries."""
+"""Regression tests for deterministic Skill and Plugin assembly."""
 
 from __future__ import annotations
 
@@ -7,32 +7,27 @@ import importlib.util
 import json
 import os
 import shutil
+import stat
 import tempfile
+import unittest
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULE_PATH = ROOT / "scripts" / "assemble_plugin.py"
-SPEC = importlib.util.spec_from_file_location("assemble_plugin", MODULE_PATH)
-assert SPEC and SPEC.loader
-ASSEMBLER = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(ASSEMBLER)
 
-EXPECTED_SKILLS = {
-    "using-vision-harness",
-    "project-onboarding",
-    "vision-management",
-    "breakdown",
-    "spec-development",
-    "technical-design",
-    "tdd-development",
-    "review",
-    "change-verification",
-    "release-delivery",
-    "project-convergence",
-    "agent-instructions",
-}
 
+def load_module(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+ASSEMBLER = load_module("assemble_plugin", ROOT / "scripts" / "assemble_plugin.py")
+VALIDATOR = load_module("validate_skills", ROOT / "scripts" / "validate_skills.py")
+
+EXPECTED_SKILLS = set(ASSEMBLER.SOURCE_SKILLS)
 REMOVED_ENTRIES = {
     "assumption-validation",
     "issue-shaping",
@@ -44,234 +39,284 @@ REMOVED_ENTRIES = {
     "review-setup",
 }
 
-EXPECTED_REFERENCES = {
-    "shared-rules.md",
-    "planning-methods.md",
-    "agent-config-methods.md",
-    "spec-design-methods.md",
-    "implementation-methods.md",
-    "review-methods.md",
-    "evidence-methods.md",
-    "convergence-methods.md",
-    "vision-behavior.md",
-    "project-context-behavior.md",
-    "breakdown-behavior.md",
-    "review-behavior.md",
-}
 
-
-def package_state(package: Path) -> dict[str, tuple[bytes, int]]:
+def tree_state(path: Path) -> dict[str, tuple[bytes, int, int]]:
     return {
-        str(path.relative_to(package)): (path.read_bytes(), path.stat().st_mtime_ns)
-        for path in sorted(package.rglob("*"))
-        if path.is_file()
-    }
-
-
-def assert_assembly_is_idempotent(package: Path) -> None:
-    with tempfile.TemporaryDirectory(prefix="vision-harness-assembly-test-") as temp_dir:
-        working = Path(temp_dir) / "vision-harness"
-        shutil.copytree(package, working)
-        ASSEMBLER.assemble(working)
-        first = ASSEMBLER.snapshot(working)
-        ASSEMBLER.assemble(working)
-        second = ASSEMBLER.snapshot(working)
-        assert first == second
-
-
-def test_assembly_is_idempotent_without_rewriting_package() -> None:
-    before = package_state(ASSEMBLER.PLUGIN)
-    assert_assembly_is_idempotent(ASSEMBLER.PLUGIN)
-    assert package_state(ASSEMBLER.PLUGIN) == before
-
-
-def test_package_skill_boundary() -> None:
-    actual = {
-        path.parent.name
-        for path in (ASSEMBLER.PLUGIN / "skills").glob("*/SKILL.md")
-    }
-    assert actual == EXPECTED_SKILLS
-    for name in REMOVED_ENTRIES | {"method-evaluation", "project-context"}:
-        assert not (ASSEMBLER.PLUGIN / "skills" / name).exists()
-
-
-def test_runtime_references_are_focused_and_complete() -> None:
-    actual = {
-        path.name
-        for path in (ASSEMBLER.PLUGIN / "references").glob("*.md")
-    }
-    assert actual == EXPECTED_REFERENCES
-    assert "engineering-rules.md" not in actual
-
-    expected_links = {
-        "breakdown": ("planning-methods.md",),
-        "spec-development": ("spec-design-methods.md",),
-        "technical-design": (
-            "spec-design-methods.md",
-            "planning-methods.md",
-            "implementation-methods.md",
-        ),
-        "tdd-development": ("implementation-methods.md", "evidence-methods.md"),
-        "review": (
-            "review-behavior.md",
-            "review-methods.md",
-            "evidence-methods.md",
-        ),
-        "change-verification": ("evidence-methods.md",),
-        "project-convergence": ("convergence-methods.md",),
-        "agent-instructions": ("agent-config-methods.md",),
-    }
-    for skill, references in expected_links.items():
-        text = (
-            ASSEMBLER.PLUGIN / "skills" / skill / "SKILL.md"
-        ).read_text(encoding="utf-8")
-        for reference in references:
-            assert f"../../references/{reference}" in text
-        assert "../../../" not in text
-
-
-def test_removed_entries_do_not_leak_into_runtime_skill_links() -> None:
-    linked = []
-    for path in (ASSEMBLER.PLUGIN / "skills").glob("*/SKILL.md"):
-        text = path.read_text(encoding="utf-8")
-        for name in REMOVED_ENTRIES:
-            if f"../{name}/SKILL.md" in text:
-                linked.append((path.name, name))
-    assert not linked
-
-
-def test_review_is_one_entry_with_three_objects() -> None:
-    text = (
-        ASSEMBLER.PLUGIN / "skills" / "review" / "SKILL.md"
-    ).read_text(encoding="utf-8")
-    for object_name in ("Spec", "Code", "PR"):
-        assert object_name in text
-    assert "不自动修改被审查对象" in text
-
-
-def test_work_entry_routing_eval_is_paired_and_unique() -> None:
-    path = ROOT / "evals" / "work-entry-routing" / "cases.json"
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    cases = payload.get("cases")
-    assert isinstance(cases, list)
-    assert len(cases) >= 12
-
-    ids = []
-    targets = set()
-    for case in cases:
-        case_id = case.get("id")
-        assert isinstance(case_id, str) and case_id.strip()
-        ids.append(case_id)
-
-        case_targets = case.get("targets")
-        assert isinstance(case_targets, list) and case_targets
-        assert all(isinstance(target, str) and target.strip() for target in case_targets)
-        targets.update(case_targets)
-
-        case_input = case.get("input")
-        assert isinstance(case_input, dict)
-        user_request = case_input.get("user_request")
-        project_facts = case_input.get("project_facts")
-        assert isinstance(user_request, str) and user_request.strip()
-        assert isinstance(project_facts, list)
-        assert all(isinstance(fact, str) and fact.strip() for fact in project_facts)
-
-        oracle = case.get("oracle")
-        assert isinstance(oracle, dict)
-        must = oracle.get("must")
-        must_not = oracle.get("must_not")
-        assert isinstance(must, list) and must
-        assert isinstance(must_not, list) and must_not
-        assert all(isinstance(item, str) and item.strip() for item in must)
-        assert all(isinstance(item, str) and item.strip() for item in must_not)
-        assert set(must).isdisjoint(must_not)
-
-    assert len(ids) == len(set(ids))
-    case_ids = set(ids)
-
-    for expected in (
-        "routing",
-        "stop",
-        "continue",
-        "review",
-        "critical-assumptions",
-        "evidence-reuse",
-        "agent-config",
-        "execution",
-    ):
-        assert expected in targets
-
-    pairs = payload.get("pairs")
-    assert isinstance(pairs, list) and len(pairs) >= 4
-    dimensions = []
-    for pair in pairs:
-        dimension = pair.get("dimension")
-        without_condition = pair.get("without_condition")
-        with_condition = pair.get("with_condition")
-        distinction = pair.get("distinction")
-        assert isinstance(dimension, str) and dimension.strip()
-        assert isinstance(without_condition, str) and without_condition in case_ids
-        assert isinstance(with_condition, str) and with_condition in case_ids
-        assert without_condition != with_condition
-        assert isinstance(distinction, str) and distinction.strip()
-        dimensions.append(dimension)
-    assert len(dimensions) == len(set(dimensions))
-
-def test_check_detects_drift_without_rewriting_package() -> None:
-    with tempfile.TemporaryDirectory(prefix="vision-harness-check-") as temp_dir:
-        package = Path(temp_dir) / "vision-harness"
-        shutil.copytree(ASSEMBLER.PLUGIN, package)
-        drifted = package / "skills" / "breakdown" / "SKILL.md"
-        before = drifted.read_bytes()
-        drifted.write_bytes(before + b"\nintentional drift\n")
-        os.utime(
-            drifted,
-            ns=(946684800000000000, 946684800000000000),
+        str(item.relative_to(path)): (
+            item.read_bytes(),
+            item.stat().st_mtime_ns,
+            stat.S_IMODE(item.stat().st_mode),
         )
-        changed = package_state(package)
-
-        assert_assembly_is_idempotent(package)
-        assert package_state(package) == changed
-
-        try:
-            ASSEMBLER.check_idempotent(package)
-        except SystemExit as exc:
-            assert "assembly drift" in str(exc)
-        else:
-            raise AssertionError("drifted package unexpectedly passed --check")
-        assert package_state(package) == changed
+        for item in sorted(path.rglob("*"))
+        if item.is_file()
+    }
 
 
-def test_selected_sections_rejects_missing_or_duplicate_sections() -> None:
-    with tempfile.TemporaryDirectory(prefix="vision-harness-sections-") as temp_dir:
-        source = Path(temp_dir) / "source.md"
-        source.write_text("## Existing\nbody\n", encoding="utf-8")
-        try:
-            ASSEMBLER.selected_sections(source, ("## Missing",))
-        except ValueError as exc:
-            assert "must match exactly" in str(exc)
-        else:
-            raise AssertionError("missing section unexpectedly passed")
+def copy_repo(destination: Path) -> Path:
+    root = destination / "repo"
+    shutil.copytree(
+        ROOT,
+        root,
+        ignore=shutil.ignore_patterns(".git", ".venv", "__pycache__", "*.pyc"),
+    )
+    return root
 
-        source.write_text(
-            "## Existing\none\n## Existing\ntwo\n",
-            encoding="utf-8",
-        )
-        try:
-            ASSEMBLER.selected_sections(source, ("## Existing",))
-        except ValueError as exc:
-            assert "duplicate source section" in str(exc)
-        else:
-            raise AssertionError("duplicate section unexpectedly passed")
+
+class AssemblyTests(unittest.TestCase):
+    def test_source_and_package_skill_sets_are_exact(self) -> None:
+        source = {
+            path.parent.name for path in (ROOT / ".agents/skills").glob("*/SKILL.md")
+        }
+        package = {
+            path.parent.name
+            for path in (ROOT / "plugins/vision-harness/skills").glob("*/SKILL.md")
+        }
+        self.assertEqual(source, EXPECTED_SKILLS | {"method-evaluation"})
+        self.assertEqual(package, EXPECTED_SKILLS)
+        for name in REMOVED_ENTRIES | {"method-evaluation"}:
+            self.assertFalse((ROOT / "plugins/vision-harness/skills" / name).exists())
+
+    def test_shared_resources_follow_explicit_mapping(self) -> None:
+        for resource, recipients in ASSEMBLER.SHARED_RESOURCE_MAP.items():
+            expected = (ROOT / "skill-resources" / resource).read_bytes()
+            for skill in EXPECTED_SKILLS:
+                path = ROOT / ".agents/skills" / skill / "references" / resource
+                self.assertEqual(path.exists(), skill in recipients, str(path))
+                if path.exists():
+                    self.assertEqual(path.read_bytes(), expected)
+
+    def test_recursive_copy_preserves_binary_and_executable_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = copy_repo(Path(temp))
+            source = root / ".agents/skills/breakdown"
+            binary = source / "assets/fixture.bin"
+            binary.parent.mkdir(parents=True, exist_ok=True)
+            binary.write_bytes(b"\x00\xfffixture\x00")
+            script = source / "scripts/fixture.sh"
+            script.parent.mkdir(parents=True)
+            script.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+            script.chmod(0o755)
+            cache = source / "__pycache__/fixture.pyc"
+            cache.parent.mkdir()
+            cache.write_bytes(b"cache")
+            (source / "assets/.DS_Store").write_bytes(b"metadata")
+            nested_cache = source / "references/__pycache__/cache.md"
+            nested_cache.parent.mkdir()
+            nested_cache.write_text("# cache\n", encoding="utf-8")
+            skill_file = source / "SKILL.md"
+            skill_file.write_text(
+                skill_file.read_text(encoding="utf-8")
+                + "\n[Binary fixture](assets/fixture.bin)\n",
+                encoding="utf-8",
+            )
+
+            ASSEMBLER.assemble(root)
+            packaged = root / "plugins/vision-harness/skills/breakdown"
+            self.assertEqual((packaged / "assets/fixture.bin").read_bytes(), binary.read_bytes())
+            self.assertEqual(
+                stat.S_IMODE((packaged / "scripts/fixture.sh").stat().st_mode), 0o755
+            )
+            self.assertFalse((packaged / "__pycache__").exists())
+            self.assertFalse((packaged / "assets/.DS_Store").exists())
+            self.assertFalse((packaged / "references/__pycache__").exists())
+
+    def test_assembly_is_deterministic(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = copy_repo(Path(temp))
+            ASSEMBLER.assemble(root)
+            first = ASSEMBLER.tree_snapshot(root / "plugins/vision-harness")
+            ASSEMBLER.assemble(root)
+            self.assertEqual(first, ASSEMBLER.tree_snapshot(root / "plugins/vision-harness"))
+
+    def test_check_detects_drift_without_writing(self) -> None:
+        def add_old_reference(root: Path) -> None:
+            path = root / "plugins/vision-harness/references/old.md"
+            path.parent.mkdir(parents=True)
+            path.write_text("old\n", encoding="utf-8")
+
+        def change_mode(root: Path) -> None:
+            path = root / "plugins/vision-harness/skills/breakdown/SKILL.md"
+            path.chmod(path.stat().st_mode | stat.S_IXUSR)
+
+        def change_shared_mode(root: Path) -> None:
+            path = root / ".agents/skills/breakdown/references/common-rules.md"
+            path.chmod(path.stat().st_mode | stat.S_IXUSR)
+
+        def add_plugin_metadata(root: Path) -> None:
+            path = root / "plugins/vision-harness/.codex-plugin/stale.txt"
+            path.write_text("stale\n", encoding="utf-8")
+
+        mutations = {
+            "content": lambda root: (root / "plugins/vision-harness/skills/breakdown/SKILL.md").write_text("drift\n", encoding="utf-8"),
+            "extra": lambda root: (root / "plugins/vision-harness/skills/breakdown/extra.txt").write_text("extra\n", encoding="utf-8"),
+            "missing": lambda root: (root / "plugins/vision-harness/skills/breakdown/references/issue-shaping.md").unlink(),
+            "mode": change_mode,
+            "old-root-references": add_old_reference,
+            "extra-plugin-metadata": add_plugin_metadata,
+            "shared-source": lambda root: (root / ".agents/skills/breakdown/references/common-rules.md").write_text("stale\n", encoding="utf-8"),
+            "shared-mode": change_shared_mode,
+        }
+        for label, mutate in mutations.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as temp:
+                root = copy_repo(Path(temp))
+                ASSEMBLER.assemble(root)
+                mutate(root)
+                before_source = tree_state(root / ".agents/skills")
+                before_package = tree_state(root / "plugins/vision-harness")
+                with self.assertRaises((SystemExit, ValueError)):
+                    ASSEMBLER.check(root)
+                self.assertEqual(before_source, tree_state(root / ".agents/skills"))
+                self.assertEqual(before_package, tree_state(root / "plugins/vision-harness"))
+
+    def test_source_validation_failure_preserves_existing_package(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = copy_repo(Path(temp))
+            ASSEMBLER.assemble(root)
+            package = root / "plugins/vision-harness"
+            before = tree_state(package)
+            skill = root / ".agents/skills/breakdown/SKILL.md"
+            skill.write_text(skill.read_text(encoding="utf-8") + "\n[bad](../outside.md)\n", encoding="utf-8")
+            with self.assertRaises((SystemExit, ValueError)):
+                ASSEMBLER.assemble(root)
+            self.assertEqual(before, tree_state(package))
+
+    def test_generated_target_symlink_is_rejected_before_any_write(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = copy_repo(Path(temp))
+            ASSEMBLER.assemble(root)
+            package = root / "plugins/vision-harness"
+            before = tree_state(package)
+            outside = Path(temp) / "outside.txt"
+            outside.write_bytes(b"keep me\n")
+            target = root / ".agents/skills/breakdown/LICENSE"
+            target.unlink()
+            try:
+                os.symlink(outside, target)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlinks unsupported: {exc}")
+            with self.assertRaises((SystemExit, ValueError)):
+                ASSEMBLER.assemble(root)
+            self.assertEqual(outside.read_bytes(), b"keep me\n")
+            self.assertEqual(before, tree_state(package))
+
+    def test_invalid_manifest_preserves_generated_skills(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = copy_repo(Path(temp))
+            ASSEMBLER.assemble(root)
+            skills = root / "plugins/vision-harness/skills"
+            before = tree_state(skills)
+            manifest = root / "plugins/vision-harness/.codex-plugin/plugin.json"
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+            payload["skills"] = "../outside"
+            manifest.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaises((SystemExit, ValueError)):
+                ASSEMBLER.assemble(root)
+            self.assertEqual(before, tree_state(skills))
+
+    def test_each_skill_exports_standalone_and_matches_package(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "exports"
+            for skill in ASSEMBLER.SOURCE_SKILLS:
+                exported = ASSEMBLER.export_skill(skill, output, ROOT)
+                VALIDATOR.validate_skill(exported)
+                self.assertEqual(
+                    ASSEMBLER.tree_snapshot(exported),
+                    ASSEMBLER.tree_snapshot(ROOT / "plugins/vision-harness/skills" / skill),
+                )
+                moved = Path(temp) / "moved" / skill
+                moved.parent.mkdir(exist_ok=True)
+                shutil.move(exported, moved)
+                VALIDATOR.validate_skill(moved)
+
+    def test_export_rejects_unknown_maintainer_nonempty_and_dangerous_targets(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "exports"
+            with self.assertRaises(ValueError):
+                ASSEMBLER.export_skill("unknown", output, ROOT)
+            with self.assertRaises(ValueError):
+                ASSEMBLER.export_skill("method-evaluation", output, ROOT)
+            output.mkdir()
+            target = output / "breakdown"
+            target.mkdir()
+            (target / "keep.txt").write_text("keep\n", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                ASSEMBLER.export_skill("breakdown", output, ROOT)
+            with self.assertRaises(ValueError):
+                ASSEMBLER.export_skill("breakdown", ROOT / ".agents/skills", ROOT)
+
+    def test_existing_eval_contracts_and_removed_entries_are_preserved(self) -> None:
+        payload = json.loads((ROOT / "evals/work-entry-routing/cases.json").read_text(encoding="utf-8"))
+        cases = payload.get("cases")
+        self.assertIsInstance(cases, list)
+        self.assertGreaterEqual(len(cases), 12)
+        ids = []
+        targets = set()
+        for case in cases:
+            case_id = case.get("id")
+            self.assertIsInstance(case_id, str)
+            self.assertTrue(case_id.strip())
+            ids.append(case_id)
+            case_targets = case.get("targets")
+            self.assertIsInstance(case_targets, list)
+            self.assertTrue(case_targets)
+            self.assertTrue(all(isinstance(item, str) and item.strip() for item in case_targets))
+            targets.update(case_targets)
+            case_input = case.get("input")
+            self.assertIsInstance(case_input, dict)
+            self.assertIsInstance(case_input.get("user_request"), str)
+            self.assertTrue(case_input["user_request"].strip())
+            self.assertIsInstance(case_input.get("project_facts"), list)
+            self.assertTrue(
+                all(isinstance(item, str) and item.strip() for item in case_input["project_facts"])
+            )
+            oracle = case.get("oracle")
+            self.assertIsInstance(oracle, dict)
+            self.assertIsInstance(oracle.get("must"), list)
+            self.assertTrue(oracle["must"])
+            self.assertIsInstance(oracle.get("must_not"), list)
+            self.assertTrue(oracle["must_not"])
+            self.assertTrue(all(isinstance(item, str) and item.strip() for item in oracle["must"]))
+            self.assertTrue(
+                all(isinstance(item, str) and item.strip() for item in oracle["must_not"])
+            )
+            self.assertTrue(set(oracle["must"]).isdisjoint(oracle["must_not"]))
+        self.assertEqual(len(ids), len(set(ids)))
+        for expected in (
+            "routing",
+            "stop",
+            "continue",
+            "review",
+            "critical-assumptions",
+            "evidence-reuse",
+            "agent-config",
+            "execution",
+        ):
+            self.assertIn(expected, targets)
+
+        pairs = payload.get("pairs")
+        self.assertIsInstance(pairs, list)
+        self.assertGreaterEqual(len(pairs), 4)
+        dimensions = []
+        case_ids = set(ids)
+        for pair in pairs:
+            dimension = pair.get("dimension")
+            without_condition = pair.get("without_condition")
+            with_condition = pair.get("with_condition")
+            distinction = pair.get("distinction")
+            self.assertIsInstance(dimension, str)
+            self.assertTrue(dimension.strip())
+            self.assertIn(without_condition, case_ids)
+            self.assertIn(with_condition, case_ids)
+            self.assertNotEqual(without_condition, with_condition)
+            self.assertIsInstance(distinction, str)
+            self.assertTrue(distinction.strip())
+            dimensions.append(dimension)
+        self.assertEqual(len(dimensions), len(set(dimensions)))
+        for path in (ROOT / ".agents/skills").glob("*/SKILL.md"):
+            text = path.read_text(encoding="utf-8")
+            for name in REMOVED_ENTRIES:
+                self.assertNotIn(f"../{name}/SKILL.md", text)
 
 
 if __name__ == "__main__":
-    test_assembly_is_idempotent_without_rewriting_package()
-    test_package_skill_boundary()
-    test_runtime_references_are_focused_and_complete()
-    test_removed_entries_do_not_leak_into_runtime_skill_links()
-    test_review_is_one_entry_with_three_objects()
-    test_work_entry_routing_eval_is_paired_and_unique()
-    test_check_detects_drift_without_rewriting_package()
-    test_selected_sections_rejects_missing_or_duplicate_sections()
-    print("assembly checks passed")
+    unittest.main()

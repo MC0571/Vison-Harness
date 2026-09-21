@@ -2,115 +2,75 @@
 
 ## 设计目标
 
-Vision Harness 通过少量明确的用户工作入口提供软件工程方法；横切判断通过按条件加载的 references 复用，确定性操作才使用 scripts/assets。它不是固定流水线，也不建设自己的项目状态、调度、审批或权限系统。
+Vision Harness 由十二个可独立使用的普通 Skill 与一个组合分发 Plugin 构成。每个普通 Skill 目录是自己的运行方法资源边界：`SKILL.md`、直接加载的 `references/`、可选 `assets/` 和 `LICENSE` 一起构成完整单元。Plugin 只组合这些完整单元，不为不完整 Skill 补方法。
 
-划分 Skill 时主要看：用户是否会自然直接请求、是否有独立可验证结果、是否有不同副作用/授权边界、交互方式、可独立失败/完成，以及合并后是否会模糊职责。方法重要、内容长、有 checklist 或经常共同触发，本身都不足以成为独立 Skill。
+这些入口不是固定生命周期。用户可以直接请求任何一项工作；条件协作按任务发生，不要求兄弟 Skill 已安装。方法重要、内容长或常被共同使用，本身都不足以成为新入口。
 
-## 当前普通工作入口
+## 源码、共享源与分发
 
-普通分发包含 12 个 Skill；method-evaluation 是维护者入口，不进入用户包。
+```text
+.agents/skills/<name>/        # 完整 Skill 源目录，可单独复制
+skill-resources/              # 四份研发期共同方法单一来源
+plugins/vision-harness/       # 组合分发；skills/ 是完整目录生成物
+scripts/                      # 装配、完整性检查和 unittest
+```
 
-| 入口 | 用户直接请求的结果 | 关键边界 |
-| --- | --- | --- |
-| using-vision-harness | 识别当前任务、最少必要事实与授权，选择直接入口 | 不实施、不自动授权；明确入口可绕过 |
-| project-onboarding | 判断项目采用缺口，并按授权做最少接入修改 | 不重建已有愿景/规划/规则 |
-| vision-management | 形成、检查或维护愿景 | 推荐不自动升级为用户决定 |
-| breakdown | 全景/滚动规划、单项工作整理、多项交付协调 | 共享工作图事实；只给方案时零执行，获准执行协调时负责到真实交接与统一候选整合 |
-| spec-development | 建立、修改或复用长期行为 Spec | 纯内部重构不制造 Spec |
-| technical-design | 架构影响、技术方案、必要 ADR、一次实施计划 | 简单变化直接沿用架构 |
-| tdd-development | 实施明确变更，或诊断/修复缺陷 | 只调查时不修；按行为切片 |
-| review | 审查 Spec、Code 或 PR | review-only 不改候选、不合并 |
-| change-verification | 取得、复用或审计变更证据 | 证据结论不超范围，不替代审查 |
-| release-delivery | 打包、PR/合并、发布或收尾 | 每种副作用分别授权 |
-| project-convergence | 系统级偏离、重复、冲突与长期收敛 | 无新事实时零治理改动 |
-| agent-instructions | AGENTS、审查规则与宿主 Agent 配置 | 文件存在不等于宿主加载或独立审查 |
+`skill-resources/` 只在研发时复用。装配将明确映射的内容逐字节物化到各源 Skill 的 `references/`，这些副本与源码一起提交，使 `.agents/skills/<name>/` 自身可迁移；副本不是第二个人工权威源。运行时不读取 `skill-resources/`、仓库根 METHOD/Spec/Eval、兄弟 Skill 或插件根 references。
 
-这些入口都可以被直接调用。using-vision-harness 只是识别/接续入口，不是强制路由器。
+`plugins/vision-harness/.codex-plugin/plugin.json` 与 Plugin README 手工维护；`plugins/vision-harness/skills/` 和 Plugin LICENSE 由装配生成。包内不再存在根级 `references/`。维护者入口 `method-evaluation`、历史材料和 Eval 留在研发仓库，不进入普通分发。
 
-## 从平级 Skill 收敛为共享方法
+共享源映射固定为：
 
-本次收敛不删除职责，而是把没有独立用户结果或高度横切的方法下沉。
-
-| 旧平级 Skill / 责任 | 重构后归属 |
+| 共享源 | 接收 Skill |
 | --- | --- |
-| assumption-validation | planning-methods 中的关键假设验证；Vision/Breakdown/Design 等遇到失败会推翻路线的未知时加载 |
-| issue-shaping | breakdown 的单项整理模式 + planning-methods |
-| delivery-coordination | breakdown 的协调模式 + planning-methods |
-| simplification | implementation-methods 的复杂度控制；Design/TDD/Review/Convergence 按需使用 |
-| spec-review / code-review / pr-review | 统一 review 入口，按对象读取 review-behavior 与 review-methods |
-| review-setup | agent-instructions 的审查配置模式 + agent-config-methods |
+| `common-rules.md` | 全部十二项 |
+| `critical-assumptions.md` | vision-management、breakdown、technical-design |
+| `complexity-control.md` | technical-design、tdd-development、review、project-convergence |
+| `evidence-rules.md` | tdd-development、review、change-verification、release-delivery |
 
-Review 合并的依据是三类任务共享形成审查判断的用户意图、同一只读授权边界和相同问题输出模型；对象差异保留在方法 reference。Breakdown 合并单项整理与交付协调，是因为它们都直接维护同一工作图和交付承诺，允许用户以三种模式直接请求，不要求先做全景规划。 协调请求只要求方案时止于方案；已授权协调执行时，Breakdown 保持协调责任，通过条件协作核对真实交接、处理执行期变化，并在统一候选及受影响验证达到请求范围后结束。
+## 十二个组件与条件交接
 
-change-verification、release-delivery、project-onboarding 等仍保留独立入口，因为它们具有不同的可验证结果或明显不同的副作用边界。
+| Skill | 独立结果 | 必要本地资源 | 外部环境要求 | 可选协作 | 无其他 Skill 时的完成边界 |
+| --- | --- | --- | --- | --- | --- |
+| using-vision-harness | 可接手上下文与下一步 | context-recovery、task-routing、common-rules | 消费项目事实入口 | 任一后续工作 | 完整返回项目、承诺、授权、缺口和下一步 |
+| project-onboarding | 缺口分类与最小接入 | adoption-gap、tooling-and-instructions、common-rules | 目标项目与实际命令/宿主 | agent-instructions、vision | 完成本地接入或准确报告外部受阻 |
+| vision-management | 形成/检查/修订愿景 | dialogue、review-and-update、outline、critical-assumptions、common-rules | 用户真实产品取舍 | breakdown | 交付确认/未知/非目标；按授权持久化 |
+| breakdown | 产品规划、单项整理或统一候选 | whole-product、rolling、issue-shaping、delivery-coordination、critical-assumptions、common-rules | GitHub/宿主工具按模式可用 | 设计、实施、验证、交付 | 方案模式止于方案；执行模式负责集成与必要证据 |
+| spec-development | Spec 变化或无需修改结论 | spec-surface、spec-authoring、outline、common-rules | 已确认行为与既有语义入口 | review、technical-design | 完成长期行为约定，不实施代码 |
+| technical-design | 架构沿用/调整与实施路径 | architecture-impact、change-design、decision-records、critical-assumptions、complexity-control、common-rules | 现有架构与代码事实 | spec、implementation | 给出方案和必要长期记录，不替用户定产品 |
+| tdd-development | 实现/修复与基本验证，或诊断 | test-discovery、tdd-cycle、debugging、complexity-control、evidence-rules、common-rules | 代码、测试入口、修改授权 | review、verification、delivery | 自行完成当前修改所需测试，停在未授权交付边界 |
+| review | Spec/Code/PR 独立判断 | 三类 review、report、complexity-control、evidence-rules、common-rules | 准确候选和基线 | verification、implementation | 只读形成 finding 或有限无阻断结论 |
+| change-verification | 执行/复用/审计证据 | verification-selection、execution、evidence-rules、common-rules | 候选、命令与环境 | implementation、review | 给出范围化结果，不修候选 |
+| release-delivery | 指定交付副作用 | package-delivery、pr-and-merge、release-and-close、evidence-rules、common-rules | 远端/发布工具与逐项授权 | review、verification | 自行核对候选证据，只执行获准动作 |
+| project-convergence | 偏离诊断或限定纠偏 | convergence-analysis、bounded-correction、complexity-control、common-rules | 新事实与相关权威入口 | 任一受影响工作 | 完成低风险获准纠偏，越界工作明确交接 |
+| agent-instructions | 项目规则或宿主配置 | project-instructions、reviewer-configuration、common-rules | 真实宿主资料与项目规则 | review | 区分文件存在、加载与审查结果 |
 
-## 条件 references
+交接是条件性的：愿景充分时可进入规划，但愿景结果自身也可结束；明确 Issue 可直接实施；Review 可独立请求；交付协调在已授权执行时不能因其他 Skill 缺失退化成静态方案。
 
-装配后的普通包使用以下 references。每个 Skill 只在对应条件出现时读取，不要求开始前读取 references 全部文件。
+## 职责覆盖与既有验证投影
 
-| Reference | 来源 | 什么时候读取 |
-| --- | --- | --- |
-| shared-rules.md | METHOD 1/5/12 | 授权、安全修改共享事实、条件充分/不足和治理比例 |
-| planning-methods.md | METHOD 3/4 | Target/Current/Deferred、单项整理、关键假设、依赖、并行与集成 |
-| agent-config-methods.md | METHOD 6 | AGENTS 分层、审查规则和宿主配置 |
-| spec-design-methods.md | METHOD 7 | Spec surface、Architecture Impact、ADR 与技术方案 |
-| implementation-methods.md | METHOD 8 | behavioral slicing、TDD、调试与复杂度控制 |
-| review-methods.md | METHOD 9 | Spec/Code/PR 的详细审查方法 |
-| evidence-methods.md | METHOD 10 | evidence scope、reuse、直接执行与审计 |
-| convergence-methods.md | METHOD 11 | Spec/架构/工作图/Vision 的系统级 convergence |
-| vision-behavior.md | Vision Spec | 愿景工作的独立可观察行为 |
-| project-context-behavior.md | Project Context Spec | 接续、接入、授权有效性与宿主加载 |
-| breakdown-behavior.md | Breakdown Spec | Breakdown 的长期行为约定 |
-| review-behavior.md | Review Spec | 统一 Review 的行为与只读边界 |
-
-SKILL.md 保留不能隐藏的规则：只审查不自动修改、当前切片不等于长期完成、测试通过不等于全部承诺、信息足够时继续、Deferred 与 Non-goal 分开、建议不自动升级为决定等。reference 只承载更长的判断过程和对象差异。
-
-## 职责覆盖矩阵
-
-| 已确认责任 | 工作入口 | 条件方法 / 独立依据 | 主要 Eval |
+| 有效职责 | 当前承担 | 独立行为依据 | 既有 Eval 投影 |
 | --- | --- | --- | --- |
-| Vision 形成、审查、维护 | vision-management | vision-behavior + shared-rules | project-startup |
-| 全景规划、rolling refinement | breakdown | breakdown-behavior + planning-methods | breakdown |
-| Issue shaping | breakdown 单项模式 | planning-methods | breakdown + work-entry-routing |
-| delivery coordination | breakdown 协调模式 | planning-methods | work-entry-routing |
-| Spec surface assessment / authoring / updating | spec-development | spec-design-methods | work-entry-routing |
-| Spec review | review Spec 模式 | review-behavior + review-methods | work-entry-routing |
-| architecture impact / design / durable decision / technical planning | technical-design | spec-design-methods；关键未知时 planning-methods | work-entry-routing |
-| behavioral slicing / TDD / debugging | tdd-development | implementation-methods | work-entry-routing |
-| adaptive verification / evidence reuse | change-verification | evidence-methods | work-entry-routing |
-| code review / PR review | review Code/PR 模式 | review-behavior + review-methods + 按需 evidence-methods | work-entry-routing |
-| semantic coverage | spec-development + tdd-development + review + change-verification | spec-design / implementation / review / evidence | breakdown + work-entry-routing |
-| deferred work review / issue graph reconciliation | breakdown + project-convergence | planning + convergence | breakdown + work-entry-routing |
-| architecture convergence / Spec consistency / Vision gap | project-convergence | convergence；按问题追加 spec-design/planning | work-entry-routing |
-| authorization | 所有入口 | shared-rules；关键边界直接保留在 SKILL | project-startup + work-entry-routing |
-| evidence scope | verification / review / delivery / implementation | evidence-methods | work-entry-routing |
-| critical assumptions | 当前负责决定的入口 | planning-methods | work-entry-routing |
-| complexity control | design / implementation / review / convergence | implementation-methods | work-entry-routing |
-| AGENTS / project Agent configuration | agent-instructions | agent-config-methods + project-context-behavior | project-startup + work-entry-routing |
+| 愿景多轮形成、检查与修订 | vision-management | `specs/vision/spec.md` | project-startup |
+| 上下文恢复、接入与授权有效性 | using-vision-harness、project-onboarding、agent-instructions | `specs/project-context/spec.md` | project-startup、work-entry-routing |
+| 全景/滚动规划 | breakdown | `specs/breakdown/spec.md` | breakdown |
+| 单项整理与交付协调 | breakdown 的单项/协调模式 | Breakdown Spec 与对应本地方法 | breakdown、work-entry-routing |
+| Spec/Code/PR 独立审查 | review 的三对象模式 | `specs/review/spec.md` | work-entry-routing |
+| 关键假设、复杂度与证据复用 | 当前负责决定/实现/审查的入口按条件加载共享方法 | METHOD 的共同判断原则 | work-entry-routing |
+| 维护者行为评估 | method-evaluation（不分发） | 研发仓库 Eval 说明与案例 | 各既有 evals 目录 |
 
-任何责任若没有入口、方法资源和验证位置，就不能因 Skill 合并而删除。
+这些 Eval 是既有验证设计和历史证据入口，不表示 0.4.0-alpha.1 已执行新的 Agent 效果验收。
 
-## 条件协作，不建立强制流水线
+## 事实与责任边界
 
-- 技术设计发现会推翻方案的未知：在当前 Design 中加载关键假设方法；只阻塞受影响决定。
-- Spec 发现未确认产品取舍：返回 Vision/当前 Issue 讨论，不把技术偏好写成需求。
-- TDD 发现真实语义歧义：暂停受影响行为；其他明确切片继续。
-- Review 发现旧证据不再覆盖当前候选：只请求补验受影响部分。
-- Convergence 发现重复或失效规则：交给对应规划、设计或 Agent 配置入口，不重跑完整生命周期。
-- Breakdown 协调模式发现没有并行收益：直接选择串行，不为了协调制造子 Agent 或额外 Issue。
+GitHub 承载动态工作事实；Spec 承载长期行为；Architecture 承载当前长期结构；ADR 承载重大已作决定的理由；一次实施方案默认留在 GitHub。Skill 是操作方法，Eval 检查实际行为，不能相互替代。
 
-交接只传递范围、来源/版本、允许副作用、缺口和期望返回结果。前一个入口完成不自动证明后一个入口条件成立，也不扩大权限。
+完整目标保持可见，近期逐步细化。Deferred 与 Non-goal 分开；已有合适工作项即可承载暂缓内容。不维护与 GitHub 平行的权威路线图或进度数据库。
 
-## 分发与可分发性
+## 装配与完整性不变量
 
-.agents/skills/ 是研发源；plugins/vision-harness/skills/ 与 references/ 是 scripts/assemble_plugin.py 生成的普通用户包。清单显式选择普通入口；method-evaluation 只留研发仓库。
+`scripts/assemble_plugin.py` 先同步明确生成的共享副本与 LICENSE，验证源 Skill，再将完整目录递归复制到 staging，验证通过后替换生成区域。复制保留字节、相对层级和执行位，并排除缓存、虚拟环境与临时产物；失败的源/staging 校验不破坏现有包。
 
-运行 reference 从 METHOD/行为 Spec 的指定章节确定性生成。包内 Skill 的所有相对引用必须指向包内资源；普通 Plugin 安装不依赖研发源码、旧安装或其他同名 Skill。当前正式分发边界是整个 Plugin；.agents/skills/ 与包内 skills/<name>/ 都不是声明为可单独复制安装的自包含分发单元。若未来提供单 Skill 安装，构建必须把该 Skill 所需 references/scripts/assets 一并物化，并增加相应完整性测试。装配测试负责检查 Skill 集合、断链、生成漂移、reference 归属和已移除入口不再泄漏。
+`--check` 只读构造预期树，比较源副本、缺失/多余文件、内容和执行位。`--export-skill` 只导出一个普通 Skill，结果必须与 Plugin 中对应目录一致。`validate_skills.py --skill` 仅依赖给定目录；它验证结构封装，不证明宿主加载或 Agent 效果。
 
-当前没有独立 Claude/Cursor/Copilot 适配层；仓库提供通用 Skill 源和 Codex Plugin/marketplace 清单。其他宿主只有在实际适配和验证存在时才声明支持。
-
-## Spec / Skill / Eval 分离
-
-行为约定回答什么行为才算正确；Skill/reference 回答 Agent 如何完成；Eval 检查实际行为是否满足约定。三者可以表达同一要求的不同投影，但当前 Skill 不能同时修改方法和唯一成功标准。
-
-本轮统一 Review 新增独立 specs/review/spec.md。路由与 reference 条件由 evals/work-entry-routing/ 验证，并与既有 Vision/Project Context/Breakdown 场景共同覆盖该停时停和条件充分时继续。
+普通 Skill 本轮不包含运行脚本、Hook、MCP 或自定义子 Agent；装配仍保留未来 Skill 自身 `scripts/`、二进制 assets 和执行位的能力。复杂度、安全、授权和证据边界由方法执行，不建设自有调度器、状态库或审批平台。

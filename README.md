@@ -16,23 +16,38 @@ Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Pl
 
 ## 当前提供的实现
 
-vision-harness Plugin 候选 0.3.0-alpha.1 将普通分发收敛为 12 个明确工作入口 + 按条件加载的 references。维护者的 method-evaluation 仍只存在研发仓库。
+vision-harness Plugin 候选 0.4.0-alpha.1 组合分发十二个普通 Skill。每个 `.agents/skills/<name>/` 都包含完整 `SKILL.md`、本地方法资源、可选模板和许可证，可以单独导出并复制；Plugin 不再用根级 references 为薄入口补方法。维护者的 `method-evaluation` 仍只存在研发仓库。
 
-| 工作范围 | 当前入口 |
+| 独立结果 | Skill |
 | --- | --- |
-| 识别、接入与愿景 | using-vision-harness、project-onboarding、vision-management |
-| 规划、单项整理与交付协调 | breakdown |
-| Spec、设计与实施 | spec-development、technical-design、tdd-development |
-| 审查、验证与交付 | review、change-verification、release-delivery |
-| 系统收敛与 Agent 配置 | project-convergence、agent-instructions |
+| 有界上下文恢复与工作定位 | using-vision-harness |
+| 采用缺口与最小接入 | project-onboarding |
+| 愿景形成、检查与修订 | vision-management |
+| 全景/滚动规划、单项整理、交付协调 | breakdown |
+| 长期行为约定或无需修改结论 | spec-development |
+| 架构影响、技术方案与必要 ADR | technical-design |
+| TDD 实施、缺陷修复或诊断 | tdd-development |
+| Spec / Code / PR 独立审查 | review |
+| 直接执行、复用或审计证据 | change-verification |
+| 构件、PR、合并、发布或关闭 | release-delivery |
+| 系统偏离诊断与限定纠偏 | project-convergence |
+| Agent 指引与 reviewer 配置 | agent-instructions |
 
-关键假设、Issue shaping、delivery coordination、复杂度控制、evidence reuse、Architecture Impact、behavioral slicing、review setup 等职责没有删除，而是作为共享方法按条件加载。完整归属、reference 条件和 Eval 覆盖见 [产品架构](ARCHITECTURE.md)。
+源码边界是 `.agents/skills/`；四份共同方法的单一维护源位于 `skill-resources/`，装配时按显式映射物化进各 Skill；组合构件位于 `plugins/vision-harness/skills/`。详细职责和无兄弟 Skill 时的完成边界见 [产品架构](ARCHITECTURE.md)。
 
-安装、工作入口和开发装配命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。工具操作由宿主已有能力承担，不新增自有调度器、权限系统或项目数据库。
+开发命令：
 
-上一轮十九个平级入口的实现记录在 [PR #38](https://github.com/MC0571/Vison-Harness/pull/38)，只作为旧候选历史。本次候选重构入口边界、运行 references 与验证设计；旧候选的结构或行为结论不能自动外推。
+```bash
+python3 scripts/assemble_plugin.py
+python3 scripts/validate_skills.py --source
+python3 scripts/validate_skills.py --package
+python3 scripts/assemble_plugin.py --export-skill breakdown --output /tmp/vision-harness-export
+python3 scripts/assemble_plugin.py --check
+```
 
-构件生成、装配检查、宿主安装、真实 Agent 任务、独立验收和发布仍是不同结果。当前提交环境未执行真实宿主安装或新的 Agent 行为验收；提供检查命令不等于已经执行。
+导出的 `/tmp/vision-harness-export/breakdown/` 是完整单元；复制到消费项目 `.agents/skills/breakdown/` 前必须确认目标目录无冲突。安装整个 Plugin 的说明见 [Plugin 使用说明](plugins/vision-harness/README.md)。
+
+当前源码和构件具备完整方法资源，确定性结构、装配和迁移检查由仓库脚本执行。它们不等于真实宿主安装通过，也不证明 Agent 行为可靠或高效；本轮未执行真实消费项目安装或效果评估。上一轮实现记录在 [PR #38](https://github.com/MC0571/Vison-Harness/pull/38)，只作为历史，旧证据不能自动外推到本候选。
 
 ## 从一个模糊想法开始
 
