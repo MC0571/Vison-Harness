@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small deterministic checks for the distribution assembly."""
+"""Deterministic checks for distribution assembly and entry boundaries."""
 
 from __future__ import annotations
 
@@ -16,6 +16,47 @@ SPEC = importlib.util.spec_from_file_location("assemble_plugin", MODULE_PATH)
 assert SPEC and SPEC.loader
 ASSEMBLER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(ASSEMBLER)
+
+EXPECTED_SKILLS = {
+    "using-vision-harness",
+    "project-onboarding",
+    "vision-management",
+    "breakdown",
+    "spec-development",
+    "technical-design",
+    "tdd-development",
+    "review",
+    "change-verification",
+    "release-delivery",
+    "project-convergence",
+    "agent-instructions",
+}
+
+REMOVED_ENTRIES = {
+    "assumption-validation",
+    "issue-shaping",
+    "delivery-coordination",
+    "simplification",
+    "spec-review",
+    "code-review",
+    "pr-review",
+    "review-setup",
+}
+
+EXPECTED_REFERENCES = {
+    "shared-rules.md",
+    "planning-methods.md",
+    "agent-config-methods.md",
+    "spec-design-methods.md",
+    "implementation-methods.md",
+    "review-methods.md",
+    "evidence-methods.md",
+    "convergence-methods.md",
+    "vision-behavior.md",
+    "project-context-behavior.md",
+    "breakdown-behavior.md",
+    "review-behavior.md",
+}
 
 
 def package_state(package: Path) -> dict[str, tuple[bytes, int]]:
@@ -43,51 +84,68 @@ def test_assembly_is_idempotent_without_rewriting_package() -> None:
     assert package_state(ASSEMBLER.PLUGIN) == before
 
 
-def test_package_has_only_the_requested_skills() -> None:
-    expected = {
-        "using-vision-harness", "project-onboarding", "vision-management",
-        "agent-instructions", "breakdown", "assumption-validation",
-        "issue-shaping", "delivery-coordination", "spec-development",
-        "technical-design", "tdd-development", "simplification", "spec-review",
-        "code-review", "pr-review", "change-verification", "release-delivery",
-        "project-convergence", "review-setup",
-    }
+def test_package_skill_boundary() -> None:
     actual = {
         path.parent.name
         for path in (ASSEMBLER.PLUGIN / "skills").glob("*/SKILL.md")
     }
-    assert actual == expected
-    assert not (ASSEMBLER.PLUGIN / "skills" / "project-context").exists()
-    assert not (ASSEMBLER.PLUGIN / "skills" / "method-evaluation").exists()
+    assert actual == EXPECTED_SKILLS
+    for name in REMOVED_ENTRIES | {"method-evaluation", "project-context"}:
+        assert not (ASSEMBLER.PLUGIN / "skills" / name).exists()
 
 
-def test_breakdown_uses_package_local_references() -> None:
-    text = (ASSEMBLER.PLUGIN / "skills" / "breakdown" / "SKILL.md").read_text(
-        encoding="utf-8"
-    )
-    assert "../../references/shared-rules.md" in text
-    assert "../../references/breakdown-behavior.md" in text
-    assert "../../../" not in text
-
-
-def test_engineering_skills_use_selected_runtime_rules() -> None:
-    expected = {
-        "assumption-validation": "#4-",
-        "delivery-coordination": "#4-",
-        "spec-development": "#7-",
-        "technical-design": "#7-",
-        "spec-review": "#9-",
-        "code-review": "#9-",
-        "pr-review": "#9-",
-        "review-setup": "#9-",
+def test_runtime_references_are_focused_and_complete() -> None:
+    actual = {
+        path.name
+        for path in (ASSEMBLER.PLUGIN / "references").glob("*.md")
     }
-    for name, anchor in expected.items():
-        text = (ASSEMBLER.PLUGIN / "skills" / name / "SKILL.md").read_text(encoding="utf-8")
-        assert "../../references/engineering-rules.md" + anchor in text
+    assert actual == EXPECTED_REFERENCES
+    assert "engineering-rules.md" not in actual
+
+    expected_links = {
+        "breakdown": ("planning-methods.md",),
+        "spec-development": ("spec-design-methods.md",),
+        "technical-design": (
+            "spec-design-methods.md",
+            "planning-methods.md",
+            "implementation-methods.md",
+        ),
+        "tdd-development": ("implementation-methods.md", "evidence-methods.md"),
+        "review": (
+            "review-behavior.md",
+            "review-methods.md",
+            "evidence-methods.md",
+        ),
+        "change-verification": ("evidence-methods.md",),
+        "project-convergence": ("convergence-methods.md",),
+        "agent-instructions": ("agent-config-methods.md",),
+    }
+    for skill, references in expected_links.items():
+        text = (
+            ASSEMBLER.PLUGIN / "skills" / skill / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        for reference in references:
+            assert f"../../references/{reference}" in text
         assert "../../../" not in text
-    reference = (ASSEMBLER.PLUGIN / "references" / "engineering-rules.md").read_text(encoding="utf-8")
-    for heading in ("## 4. ", "## 7. ", "## 9. "):
-        assert heading in reference
+
+
+def test_removed_entries_do_not_leak_into_runtime_skill_links() -> None:
+    linked = []
+    for path in (ASSEMBLER.PLUGIN / "skills").glob("*/SKILL.md"):
+        text = path.read_text(encoding="utf-8")
+        for name in REMOVED_ENTRIES:
+            if f"../{name}/SKILL.md" in text:
+                linked.append((path.name, name))
+    assert not linked
+
+
+def test_review_is_one_entry_with_three_objects() -> None:
+    text = (
+        ASSEMBLER.PLUGIN / "skills" / "review" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+    for object_name in ("Spec", "Code", "PR"):
+        assert object_name in text
+    assert "不自动修改被审查对象" in text
 
 
 def test_check_detects_drift_without_rewriting_package() -> None:
@@ -97,7 +155,10 @@ def test_check_detects_drift_without_rewriting_package() -> None:
         drifted = package / "skills" / "breakdown" / "SKILL.md"
         before = drifted.read_bytes()
         drifted.write_bytes(before + b"\nintentional drift\n")
-        os.utime(drifted, ns=(946684800000000000, 946684800000000000))
+        os.utime(
+            drifted,
+            ns=(946684800000000000, 946684800000000000),
+        )
         changed = package_state(package)
 
         assert_assembly_is_idempotent(package)
@@ -123,7 +184,10 @@ def test_selected_sections_rejects_missing_or_duplicate_sections() -> None:
         else:
             raise AssertionError("missing section unexpectedly passed")
 
-        source.write_text("## Existing\none\n## Existing\ntwo\n", encoding="utf-8")
+        source.write_text(
+            "## Existing\none\n## Existing\ntwo\n",
+            encoding="utf-8",
+        )
         try:
             ASSEMBLER.selected_sections(source, ("## Existing",))
         except ValueError as exc:
@@ -134,9 +198,10 @@ def test_selected_sections_rejects_missing_or_duplicate_sections() -> None:
 
 if __name__ == "__main__":
     test_assembly_is_idempotent_without_rewriting_package()
-    test_package_has_only_the_requested_skills()
-    test_breakdown_uses_package_local_references()
-    test_engineering_skills_use_selected_runtime_rules()
+    test_package_skill_boundary()
+    test_runtime_references_are_focused_and_complete()
+    test_removed_entries_do_not_leak_into_runtime_skill_links()
+    test_review_is_one_entry_with_three_objects()
     test_check_detects_drift_without_rewriting_package()
     test_selected_sections_rejects_missing_or_duplicate_sections()
     print("assembly checks passed")
