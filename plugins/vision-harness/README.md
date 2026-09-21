@@ -1,97 +1,100 @@
 # Vision Harness
 
-`0.2.0-alpha.1` 为一个入口与十八类用户工作提供 Skill 实现，覆盖愿景、规划、实施、审查、交付、协调和长期纠偏。它们按任务选择，不是十九个强制步骤。实现文件已经提交不等于工作路径已经通过运行验收，具体边界见本文末尾。
+0.3.0-alpha.1 将普通分发从十九个平级入口收敛为 12 个工作入口 + 按条件加载的 references。职责没有按文件数量删减：单项 Issue 整理、交付协调、关键假设、复杂度控制和审查配置等方法仍在包内，只是不再作为独立用户入口。
 
 ## 工作入口
 
 | 工作 | Skill |
 | --- | --- |
-| 识别请求、恢复事实与授权 | [using-vision-harness](skills/using-vision-harness/SKILL.md) |
-| 按缺口接入项目 | [project-onboarding](skills/project-onboarding/SKILL.md) |
-| 多轮愿景讨论与维护 | [vision-management](skills/vision-management/SKILL.md) |
-| 关键假设调查 | [assumption-validation](skills/assumption-validation/SKILL.md) |
-| 整体规划与滚动细化 | [breakdown](skills/breakdown/SKILL.md) |
-| 单项范围与完成条件 | [issue-shaping](skills/issue-shaping/SKILL.md) |
-| 依赖、并行与统一候选集成 | [delivery-coordination](skills/delivery-coordination/SKILL.md) |
-| 行为规格制定与演进 | [spec-development](skills/spec-development/SKILL.md) |
-| 技术方案、架构与必要 ADR | [technical-design](skills/technical-design/SKILL.md) |
-| TDD 实施与缺陷处理 | [tdd-development](skills/tdd-development/SKILL.md) |
-| 设计、代码和流程简化 | [simplification](skills/simplification/SKILL.md) |
-| 规格审查 | [spec-review](skills/spec-review/SKILL.md) |
-| 代码审查 | [code-review](skills/code-review/SKILL.md) |
-| PR 推进条件审查 | [pr-review](skills/pr-review/SKILL.md) |
-| 获取或审计变更证据 | [change-verification](skills/change-verification/SKILL.md) |
-| 交付构件、发布与收尾 | [release-delivery](skills/release-delivery/SKILL.md) |
-| 整体回顾与纠偏 | [project-convergence](skills/project-convergence/SKILL.md) |
-| 根或局部 Agent 指引维护 | [agent-instructions](skills/agent-instructions/SKILL.md) |
-| 审查规范与宿主入口维护 | [review-setup](skills/review-setup/SKILL.md) |
+| 识别请求、恢复最少事实与授权 | [using-vision-harness](skills/using-vision-harness/SKILL.md) |
+| 按真实缺口接入项目 | [project-onboarding](skills/project-onboarding/SKILL.md) |
+| 愿景形成、检查与维护 | [vision-management](skills/vision-management/SKILL.md) |
+| 全景/滚动规划、单项整理、依赖并行与集成协调 | [breakdown](skills/breakdown/SKILL.md) |
+| 行为 Spec surface、制定与演进 | [spec-development](skills/spec-development/SKILL.md) |
+| 技术方案、Architecture Impact、ADR | [technical-design](skills/technical-design/SKILL.md) |
+| TDD 实施、调试与复杂度控制 | [tdd-development](skills/tdd-development/SKILL.md) |
+| Spec / Code / PR 审查 | [review](skills/review/SKILL.md) |
+| 获取、复用或审计变更证据 | [change-verification](skills/change-verification/SKILL.md) |
+| 构件、PR/合并、发布与收尾 | [release-delivery](skills/release-delivery/SKILL.md) |
+| 系统级长期 convergence | [project-convergence](skills/project-convergence/SKILL.md) |
+| AGENTS、审查规则和宿主 Agent 配置 | [agent-instructions](skills/agent-instructions/SKILL.md) |
 
-维护者的 `method-evaluation` 保留在研发仓库，不包含在此普通用户包内，也不是用户项目的必经步骤。
+维护者的 method-evaluation 只存在于研发仓库，不装入普通用户包。
+
+## 旧入口迁移
+
+- issue-shaping、delivery-coordination → 直接调用 breakdown 的单项/协调模式。
+- spec-review、code-review、pr-review → review，按对象选择 Spec/Code/PR。
+- assumption-validation → 当前负责决定的工作入口按条件加载规划方法。
+- simplification → Design/TDD/Review/Convergence 按条件加载实现与复杂度方法。
+- review-setup → agent-instructions 的审查配置模式。
+
+这些是入口收敛，不是能力删除。
+
+## Progressive disclosure
+
+SKILL.md 只保留结果、使用边界、执行骨架、关键授权规则和 reference 加载条件。详细方法位于 references/：
+
+- shared-rules.md：授权、安全共享事实修改、治理充分性；
+- planning-methods.md：完整目标、单项整理、关键假设、依赖/并行/集成；
+- spec-design-methods.md：Spec surface、Architecture Impact、ADR、技术方案；
+- implementation-methods.md：行为切片、TDD、调试、复杂度控制；
+- review-methods.md：Spec/Code/PR 详细审查；
+- evidence-methods.md：证据范围、复用、执行和审计；
+- convergence-methods.md：系统级收敛；
+- agent-config-methods.md：AGENTS、审查规范和宿主配置；
+- 另有 Vision、Project Context、Breakdown、Review 的行为 references。
+
+不要在开始任务时预读全部 references。Skill 中写明了何时加载哪一份。
 
 ## 本地安装
 
-下面使用仓库根目录的 marketplace 配置，不是将包目录当成 marketplace。先检出准备使用的分支或提交，再把示例路径替换为本地仓库路径：
+先检出准备使用的分支或提交，再使用仓库根 marketplace：
 
-```bash
+~~~bash
 codex plugin marketplace add /path/to/Vison-Harness
 codex plugin add vision-harness@personal
-```
+~~~
 
-安装后启动新会话，让宿主读取当前候选。已有安装的更新命令以本机 `codex plugin --help` 和实际宿主支持为准，不通过手动覆盖用户缓存、信任或全局配置处理。
+安装后启动新会话，让宿主读取当前候选。在支持显式 Skill 选择的宿主中可以直接调用，例如：
 
-在支持显式 Skill 选择的宿主中选择相应名称，再给出任务与边界。例如：
+~~~text
+使用 breakdown 整理这个 Issue 的范围与完成条件；只给建议，不改 GitHub。
+~~~
 
-```text
-使用 tdd-development 完成现有 Issue，允许修改相关代码和测试，提交到独立分支，不要合并。
-```
+~~~text
+使用 review 审查当前 PR，只给判断，不修复、不合并。
+~~~
 
-```text
-使用 pr-review 检查当前 PR，只给判断，不修复、不合并。
-```
+~~~text
+使用 tdd-development 完成这个明确 Issue，允许修改代码和测试，提交独立分支，不要合并。
+~~~
 
-```text
-使用 delivery-coordination 安排这批工作的依赖与集成，保留已有规划。
-```
-
-自然语言请求可由入口帮助选择工作；是否自动触发取决于宿主，不能仅因存在入口 Skill 就假定会自动调用。安装本候选不等于已经完成某项用户任务。
+自然语言请求可以由 using-vision-harness 帮助选择入口；它不是必经路由器，是否自动触发取决于宿主。
 
 ## 包和工具边界
 
-共享规则位于 `references/`，从研发仓库的权威方法与必要行为约定确定性生成。实施、规格、审查和协调按需读取 `engineering-rules.md`，不把全部规则复制到每个 Skill。消费项目的事实仍从项目本身和 GitHub 获取。
+共享 references 由研发仓库的 METHOD 与行为 Spec 确定性生成；消费项目事实仍从消费项目和 GitHub 获取。文件、GitHub、测试、子 Agent 等操作使用宿主已有工具及本轮授权，本包不捆绑自有状态库、调度器或权限系统。
 
-文件、GitHub、测试和委派操作依赖宿主已有工具与本轮授权。本包不捆绑 MCP、Hook、调度服务或自有状态数据库，也不会因安装而获得额外操作权限。缺少工具时说明受影响动作，其他可以完成的工作继续。
+安装和更新不得覆盖消费项目愿景、AGENTS、规划、自定义规则或代码。讨论、实施、审查、合并、发布分别判断权限。
 
-安装和更新不得改写消费项目的愿景、指引、规划、自定义规则或代码；显式获准的工作才修改相应对象。讨论、实施、审查、合并和发布的权限分别判断。
+## 开发装配与检查
 
-## 开发装配：生成分发内容
+源 Skill 位于研发仓库 .agents/skills/；包内 skills/ 和 references/ 是生成物：
 
-源 Skill 位于研发仓库 `.agents/skills/`。包内 `skills/` 和 `references/` 由 `scripts/assemble_plugin.py` 中的明确清单与引用映射生成，许可证随构件复制。该脚本不生成 Plugin 清单、marketplace 配置或本使用说明。
-
-修改源材料后，只有需要重新生成分发内容时，才在研发仓库根目录运行：
-
-```bash
+~~~bash
 python3 scripts/assemble_plugin.py
-```
+~~~
 
-这是构建命令，会重建包内生成目录，不是对原包的只读检查。不要对生成副本单独修补后再与源文件各自维护，也不要将完整研发仓库、评估判据或未见案例复制进包。
+只读漂移检查与装配测试：
 
-## 维护检查：与构建分开执行
-
-下面是已有检查入口，不是安装步骤，也不会仅因本文列出而自动运行：
-
-```bash
+~~~bash
 python3 scripts/assemble_plugin.py --check
 python3 scripts/test_assemble_plugin.py
-```
+~~~
 
-`--check` 比较当前包和临时装配结果，不修复漂移；装配测试在临时副本中运行，不应改写原始待检查包。
+测试检查目标 Skill 集、包内引用、reference 分割、旧入口移除以及确定性装配。结构检查不等于真实 Agent 行为通过；行为回归设计位于研发仓库 evals/，不会打进普通包。
 
-要判断一个已经存在的包是否漂移，先对该包执行只读检查，不要先运行构建命令将它重建。需要修订源文件并重新构建时，分别记录原包状态和新构件结果；后者通过不能证明原包没有问题。结构或装配检查也不能替代实际宿主中的任务结果。
+## 当前候选边界
 
-## 本候选的边界
-
-本次迭代交付完整入口范围的实现与分发文件，没有执行装配检查、测试、安装演练或新的 Agent 行为验收。它不是已经证明所有工作路径可靠的正式稳定版，也没有公开发布。此前五个入口的历史接受只适用于相应旧候选，不能自动覆盖新增能力或本轮对交付指令的修改。
-
-实现、检查和审查的实际记录见 [PR #38](https://github.com/MC0571/Vison-Harness/pull/38)。本说明中的命令与交互只提供使用方式，不构成执行记录。
-
-获得构件、打开 PR、合并、发布和关闭长期能力是不同动作；交付候选不会自动执行后四项。实际质量结论以对应提交的工作记录为准。
+0.3.0-alpha.1 是架构收敛候选：源入口、分发构件、独立 Review 行为约定和路由/reference Eval 已同步更新。当前提交环境没有执行真实宿主安装或 Agent 行为验收；旧候选的运行证据不能自动扩到本候选。构建通过、安装通过、用户任务完成、独立审查和发布授权仍是不同结论。
