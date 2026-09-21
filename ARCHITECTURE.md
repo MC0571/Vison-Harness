@@ -15,7 +15,7 @@ Vision Harness 通过少量明确的用户工作入口提供软件工程方法�
 | using-vision-harness | 识别当前任务、最少必要事实与授权，选择直接入口 | 不实施、不自动授权；明确入口可绕过 |
 | project-onboarding | 判断项目采用缺口，并按授权做最少接入修改 | 不重建已有愿景/规划/规则 |
 | vision-management | 形成、检查或维护愿景 | 推荐不自动升级为用户决定 |
-| breakdown | 全景/滚动规划、单项工作整理、多项交付协调 | 共享工作图事实；不实现产品 |
+| breakdown | 全景/滚动规划、单项工作整理、多项交付协调 | 共享工作图事实；只给方案时零执行，获准执行协调时负责到真实交接与统一候选整合 |
 | spec-development | 建立、修改或复用长期行为 Spec | 纯内部重构不制造 Spec |
 | technical-design | 架构影响、技术方案、必要 ADR、一次实施计划 | 简单变化直接沿用架构 |
 | tdd-development | 实施明确变更，或诊断/修复缺陷 | 只调查时不修；按行为切片 |
@@ -40,7 +40,7 @@ Vision Harness 通过少量明确的用户工作入口提供软件工程方法�
 | spec-review / code-review / pr-review | 统一 review 入口，按对象读取 review-behavior 与 review-methods |
 | review-setup | agent-instructions 的审查配置模式 + agent-config-methods |
 
-Review 合并的依据是三类任务共享形成审查判断的用户意图、同一只读授权边界和相同问题输出模型；对象差异保留在方法 reference。Breakdown 合并单项整理与交付协调，是因为它们都直接维护同一工作图和交付承诺，允许用户以三种模式直接请求，不要求先做全景规划。
+Review 合并的依据是三类任务共享形成审查判断的用户意图、同一只读授权边界和相同问题输出模型；对象差异保留在方法 reference。Breakdown 合并单项整理与交付协调，是因为它们都直接维护同一工作图和交付承诺，允许用户以三种模式直接请求，不要求先做全景规划。 协调请求只要求方案时止于方案；已授权协调执行时，Breakdown 保持协调责任，通过条件协作核对真实交接、处理执行期变化，并在统一候选及受影响验证达到请求范围后结束。
 
 change-verification、release-delivery、project-onboarding 等仍保留独立入口，因为它们具有不同的可验证结果或明显不同的副作用边界。
 
