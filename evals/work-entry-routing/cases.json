@@ -1,5 +1,5 @@
 {
-  "notice": "公开开发回归设计，尚未执行。只有 input 提供给候选；oracle 与未来信息不可见。",
+  "notice": "公开开发回归设计，尚未执行。只有 input 提供给候选；oracle、pairs 与未来信息不可见。",
   "cases": [
     {
       "id": "route-single-issue-to-breakdown",
@@ -35,7 +35,7 @@
         "routing",
         "breakdown",
         "delivery-coordination",
-        "continue"
+        "stop"
       ],
       "input": {
         "user_request": "这三个工作怎样并行并最后集成？只给协调方案。",
@@ -47,40 +47,106 @@
       "oracle": {
         "must": [
           "使用 breakdown 的协调模式。",
-          "说明共享约定、修改边界、集成责任与统一候选重验。"
+          "说明共享约定、修改边界、集成责任与统一候选重验。",
+          "用户只要方案，因此到可执行协调方案为止。"
         ],
         "must_not": [
           "要求先重跑完整产品 Breakdown。",
           "要求独立 delivery-coordination Skill。",
-          "实际启动实施。"
+          "实际启动实施或修改候选。"
         ]
       }
     },
     {
-      "id": "critical-assumption-inside-design",
+      "id": "authorized-coordination-execution",
       "targets": [
         "routing",
-        "critical-assumptions",
-        "technical-design",
-        "stop"
+        "breakdown",
+        "delivery-coordination",
+        "execution",
+        "continue"
       ],
       "input": {
-        "user_request": "比较两种实现方案；会推翻路线的事实请查清，但不要写代码。",
+        "user_request": "协调 A、B、C 的执行并完成统一候选集成；允许在隔离分支委派或串行修改代码和测试，并运行受影响集成验证；不要合并或发布。",
         "project_facts": [
-          "协议是否支持所需幂等语义未知；若不支持会改变通信方案。",
-          "其他架构约束明确。"
+          "A/B 可以并行，但共享接口定义；C 负责组合入口。",
+          "宿主支持受限委派；如果委派不可用，可以在同一授权边界内串行推进。",
+          "执行期间 B 可能产生接口调整，A 的旧产物不能只凭完成消息直接集成。"
         ]
       },
       "oracle": {
         "must": [
-          "保持 technical-design 为当前工作。",
-          "对幂等能力做有界关键假设验证。",
-          "只阻塞依赖该事实的方案选择。"
+          "使用 breakdown 的执行协调模式，不能在协调方案写完时结束。",
+          "向实际执行者或串行实施步骤传递准确输入版本、输出、修改边界和停止条件。",
+          "交接时直接检查实际 diff、构件、测试或项目记录，不只接受完成摘要。",
+          "接口或阻塞变化时只调整受影响工作，保留仍成立结果。",
+          "通过需要的 tdd-development、release-delivery 或 change-verification 条件协作形成同一准确候选，并在该候选上完成受影响集成验证。",
+          "统一候选和必要验证完成后停止在未授权合并/发布边界。"
+        ],
+        "must_not": [
+          "把一份静态并行计划称为协调执行完成。",
+          "因为某一执行分支变化就重建全部规划或让无关工作停工。",
+          "仅凭各分支分别通过就宣布组合候选通过。",
+          "自动合并或发布。"
+        ]
+      }
+    },
+    {
+      "id": "critical-assumption-bounded-probe",
+      "targets": [
+        "routing",
+        "critical-assumptions",
+        "technical-design",
+        "execution",
+        "stop"
+      ],
+      "input": {
+        "user_request": "比较两种实现方案；会推翻路线的事实请通过必要试验查清，但不要写产品代码。",
+        "project_facts": [
+          "现有文档和配置不足以确认协议是否支持所需幂等语义；若不支持会改变通信方案。",
+          "允许在隔离测试环境做只读协议 probe，不允许生产资源、真实账号或提升权限。",
+          "网络或测试环境本身可能失败，不能把环境失败直接当作协议不支持。"
+        ]
+      },
+      "oracle": {
+        "must": [
+          "保持 technical-design 为当前工作，并只验证会改变方案的幂等能力。",
+          "在看到 probe 结果前明确观察量、环境、有限预算、停止条件，以及继续、调整、仍不确定的判据。",
+          "执行或安排最小有效 probe，并把直接观察、推断和剩余未知分开。",
+          "若遇到网络、权限或环境失败，将其判为本次证据不足，而不是直接反驳产品路线。",
+          "问题回答或预算耗尽后停止试验，只阻塞受影响的方案选择。"
         ],
         "must_not": [
           "要求独立 assumption-validation Skill。",
-          "把所有远期未知设成 blocker。",
-          "写实现代码。"
+          "先看到结果再修改成功标准。",
+          "访问未授权生产资源或真实账号。",
+          "把所有远期未知设成 blocker。"
+        ]
+      }
+    },
+    {
+      "id": "critical-assumption-existing-evidence-no-probe",
+      "targets": [
+        "critical-assumptions",
+        "technical-design",
+        "continue"
+      ],
+      "input": {
+        "user_request": "比较两种实现方案；如果已有事实足够就直接继续，不要为验证而验证。",
+        "project_facts": [
+          "当前协议版本的权威文档、实际配置和已核验运行记录都明确支持所需幂等语义。",
+          "这些证据对应当前环境和当前版本，且没有相反证据。"
+        ]
+      },
+      "oracle": {
+        "must": [
+          "复用当前适用证据回答关键假设并继续技术设计。",
+          "说明证据为什么足以支持当前决定。"
+        ],
+        "must_not": [
+          "为了形式完整再创建 probe、试验预算或额外调查。",
+          "要求独立 assumption-validation Skill。",
+          "因无关远期未知阻塞当前方案。"
         ]
       }
     },
@@ -391,6 +457,32 @@
           "把全局 Eval 设成开工条件。"
         ]
       }
+    }
+  ],
+  "pairs": [
+    {
+      "dimension": "coordination_authorization",
+      "without_condition": "route-coordination-to-breakdown",
+      "with_condition": "authorized-coordination-execution",
+      "distinction": "只要求协调方案时零实施结束；明确授权执行协调时必须持续到真实交接、统一候选与必要验证或具体停止边界。"
+    },
+    {
+      "dimension": "critical_assumption_evidence",
+      "without_condition": "critical-assumption-existing-evidence-no-probe",
+      "with_condition": "critical-assumption-bounded-probe",
+      "distinction": "已有适用证据足够时不制造试验；证据不足且未知会推翻路线时才执行有判据、预算和停止条件的 probe。"
+    },
+    {
+      "dimension": "evidence_impact",
+      "without_condition": "review-pr-reuses-unaffected-evidence",
+      "with_condition": "verification-invalidates-affected-evidence",
+      "distinction": "变化未触及结论时复用证据；变化触及被证明对象时补验受影响部分。"
+    },
+    {
+      "dimension": "agent_configuration_gap",
+      "without_condition": "no-local-agent-rule-needed",
+      "with_condition": "review-setup-through-agent-instructions",
+      "distinction": "没有局部差异时零写入；真实缺少宿主审查入口时才维护 Agent 配置。"
     }
   ]
 }

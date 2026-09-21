@@ -152,16 +152,43 @@ def test_review_is_one_entry_with_three_objects() -> None:
 def test_work_entry_routing_eval_is_paired_and_unique() -> None:
     path = ROOT / "evals" / "work-entry-routing" / "cases.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
-    cases = payload["cases"]
-    ids = [case["id"] for case in cases]
-    assert len(ids) == len(set(ids))
+    cases = payload.get("cases")
+    assert isinstance(cases, list)
     assert len(cases) >= 12
 
-    targets = {
-        target
-        for case in cases
-        for target in case.get("targets", [])
-    }
+    ids = []
+    targets = set()
+    for case in cases:
+        case_id = case.get("id")
+        assert isinstance(case_id, str) and case_id.strip()
+        ids.append(case_id)
+
+        case_targets = case.get("targets")
+        assert isinstance(case_targets, list) and case_targets
+        assert all(isinstance(target, str) and target.strip() for target in case_targets)
+        targets.update(case_targets)
+
+        case_input = case.get("input")
+        assert isinstance(case_input, dict)
+        user_request = case_input.get("user_request")
+        project_facts = case_input.get("project_facts")
+        assert isinstance(user_request, str) and user_request.strip()
+        assert isinstance(project_facts, list)
+        assert all(isinstance(fact, str) and fact.strip() for fact in project_facts)
+
+        oracle = case.get("oracle")
+        assert isinstance(oracle, dict)
+        must = oracle.get("must")
+        must_not = oracle.get("must_not")
+        assert isinstance(must, list) and must
+        assert isinstance(must_not, list) and must_not
+        assert all(isinstance(item, str) and item.strip() for item in must)
+        assert all(isinstance(item, str) and item.strip() for item in must_not)
+        assert set(must).isdisjoint(must_not)
+
+    assert len(ids) == len(set(ids))
+    case_ids = set(ids)
+
     for expected in (
         "routing",
         "stop",
@@ -170,13 +197,25 @@ def test_work_entry_routing_eval_is_paired_and_unique() -> None:
         "critical-assumptions",
         "evidence-reuse",
         "agent-config",
+        "execution",
     ):
         assert expected in targets
 
-    text = path.read_text(encoding="utf-8")
-    for removed in REMOVED_ENTRIES:
-        assert f'"expected_skill": "{removed}"' not in text
-
+    pairs = payload.get("pairs")
+    assert isinstance(pairs, list) and len(pairs) >= 4
+    dimensions = []
+    for pair in pairs:
+        dimension = pair.get("dimension")
+        without_condition = pair.get("without_condition")
+        with_condition = pair.get("with_condition")
+        distinction = pair.get("distinction")
+        assert isinstance(dimension, str) and dimension.strip()
+        assert isinstance(without_condition, str) and without_condition in case_ids
+        assert isinstance(with_condition, str) and with_condition in case_ids
+        assert without_condition != with_condition
+        assert isinstance(distinction, str) and distinction.strip()
+        dimensions.append(dimension)
+    assert len(dimensions) == len(set(dimensions))
 
 def test_check_detects_drift_without_rewriting_package() -> None:
     with tempfile.TemporaryDirectory(prefix="vision-harness-check-") as temp_dir:
