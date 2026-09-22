@@ -17,7 +17,7 @@ scripts/                      # 装配、完整性检查和 unittest
 
 `skill-resources/` 只在研发时复用。装配将明确映射的内容逐字节物化到各源 Skill 的 `references/`，这些副本与源码一起提交，使 `.agents/skills/<name>/` 自身可迁移；副本不是第二个人工权威源。运行时不读取 `skill-resources/`、仓库根 METHOD/Spec/Eval、兄弟 Skill 或插件根 references。
 
-`plugins/vision-harness/.codex-plugin/plugin.json` 与 Plugin README 手工维护；`plugins/vision-harness/skills/` 和 Plugin LICENSE 由装配生成。包内不再存在根级 `references/`。维护者入口 `method-evaluation`、历史材料和 Eval 留在研发仓库，不进入普通分发。
+`plugins/vision-harness/plugin.json` 与 Plugin README 手工维护；这是 portable Agent Plugins 根清单，Skills 由固定的 `skills/` 目录发现，OpenAI 专用 interface 位于 `extensions["com.openai"].interface`。`plugins/vision-harness/skills/` 和 Plugin LICENSE 由装配生成。包内不再存在 `.codex-plugin` 清单或根级 `references/`。维护者入口 `method-evaluation`、历史材料和 Eval 留在研发仓库，不进入普通分发。
 
 共享源映射固定为：
 
