@@ -47,7 +47,7 @@ python3 scripts/assemble_plugin.py --check
 
 导出的 `/tmp/vision-harness-export/breakdown/` 是完整单元；复制到消费项目 `.agents/skills/breakdown/` 前必须确认目标目录无冲突。安装整个 Plugin 的说明见 [Plugin 使用说明](plugins/vision-harness/README.md)。
 
-当前源码和构件具备完整方法资源，确定性结构、装配和迁移检查由仓库脚本执行。它们不等于真实宿主安装通过，也不证明 Agent 行为可靠或高效；本轮未执行真实消费项目安装或效果评估。上一轮实现记录在 [PR #38](https://github.com/MC0571/Vison-Harness/pull/38)，只作为历史，旧证据不能自动外推到本候选。
+当前源码和构件具备完整方法资源，确定性结构、装配和迁移检查由仓库脚本执行。宿主安装、任务行为和长期效果需要各自的证据；具体候选的运行结果见对应 PR 与 CI 记录，局部任务通过不证明普遍可靠或高效。上一轮实现记录在 [PR #38](https://github.com/MC0571/Vison-Harness/pull/38)，只作为历史，旧证据不能自动外推到本候选。
 
 ## 从一个模糊想法开始
 
