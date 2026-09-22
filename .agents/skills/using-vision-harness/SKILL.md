@@ -1,6 +1,6 @@
 ---
 name: using-vision-harness
-description: Use when a new or resumed project task needs bounded context recovery, effective scope, authorization, and one executable next step. Returns a handoff-ready context result; it is not a mandatory router and does not replace implementation.
+description: Use only when a project task lacks enough recoverable context to identify its target, effective scope, authorization, or next step. Skip it when the user already supplied the object, scope, and implementation authority; it is not a mandatory router or implementation prerequisite.
 license: MIT
 ---
 
@@ -10,7 +10,7 @@ license: MIT
 
 ## 何时使用／何时不使用
 
-用于新会话、旧聊天不可用、项目或候选可能混淆、授权有效性不清，或用户需要定位工作入口时。用户已给出明确对象、实施范围和授权时直接进入工作，不要求先走本入口；本技能不替代实施、审查、验证或交付。
+仅在当前任务缺少足以判断目标项目、范围、授权或下一步的上下文时使用；新会话本身不构成缺口。用户已给出明确对象、实施范围和授权时直接进入实施，不要求先走本入口；本技能不替代实施、审查、验证或交付。
 
 ## 输入与环境条件
 
@@ -35,7 +35,7 @@ license: MIT
 
 | 触发条件 | 文件 | 使用目的 |
 | --- | --- | --- |
-| 新会话、来源冲突、持续授权或撤销 | [上下文恢复](references/context-recovery.md) | 核对事实与授权有效性 |
+| 上下文确有缺口：旧聊天不可用、来源冲突或授权持续/撤销 | [上下文恢复](references/context-recovery.md) | 核对事实与授权有效性 |
 | 需要把用户意图映射到直接工作 | [任务定位](references/task-routing.md) | 返回任务范围、输入与下一步 |
 | 涉及写入、提交或停止层级 | [共同操作边界](references/common-rules.md) | 区分决定、授权与完成层级 |
 
