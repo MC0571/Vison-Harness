@@ -1,6 +1,6 @@
 # Vision Harness Plugin
 
-0.4.0 组合分发十二个职责明确、资源自包含的普通 Skill。每个 `skills/<name>/` 都有自己的方法 references、可选 assets 和 LICENSE；Plugin 没有根级方法 references，也不负责补齐不完整 Skill。
+0.4.1 组合分发十二个职责明确、资源自包含的普通 Skill。每个 `skills/<name>/` 都有自己的方法 references、可选 assets 和 LICENSE；Plugin 没有根级方法 references，也不负责补齐不完整 Skill。
 
 ## 工作入口
 
