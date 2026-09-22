@@ -4,7 +4,7 @@ description: Use only when a project task lacks enough recoverable context to id
 license: MIT
 ---
 
-# Vision-Harhess: Using Vision Harness
+# Vision-Harness: Using Vision Harness
 
 交付“现在可接手什么”：目标项目、当前承诺、有效事实入口、允许动作、真正缺口和一项可执行下一步。
 

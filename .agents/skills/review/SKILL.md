@@ -4,7 +4,7 @@ description: Use when a fixed Spec, implementation, or PR needs an independent c
 license: MIT
 ---
 
-# Vision-Harhess: Review
+# Vision-Harness: Review
 
 对准确 Spec、Code 或 PR 候选形成独立、有依据、有范围的判断。高质量审查不是问题数量，而是发现真实问题并过滤伪问题。
 

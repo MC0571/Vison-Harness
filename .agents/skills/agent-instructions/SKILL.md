@@ -4,7 +4,7 @@ description: Use when project Agent guidance, review rules, or host execution co
 license: MIT
 ---
 
-# Vision-Harhess: Agent Instructions
+# Vision-Harness: Agent Instructions
 
 交付必要、可执行的项目 Agent 指引或审查/宿主配置，并说明真实加载与权限边界。
 

@@ -4,7 +4,7 @@ description: Use for whole-product or rolling planning, shaping one work item, o
 license: MIT
 ---
 
-# Vision-Harhess: Breakdown
+# Vision-Harness: Breakdown
 
 交付可接手的产品规划、整理后的单项工作、协调方案，或获准执行形成的统一候选。结果由本次请求决定。
 

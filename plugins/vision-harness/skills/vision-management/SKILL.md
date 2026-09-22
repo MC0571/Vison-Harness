@@ -4,7 +4,7 @@ description: Use when users need to form, inspect, or revise a project vision th
 license: MIT
 ---
 
-# Vision-Harhess: Vision Management
+# Vision-Harness: Vision Management
 
 形成足以支持当前取舍的共同理解，或交付对既有愿景的检查与获准修订。
 

@@ -4,7 +4,7 @@ description: Use when confirmed behavior needs a durable contract formed or revi
 license: MIT
 ---
 
-# Vision-Harhess: Spec Development
+# Vision-Harness: Spec Development
 
 形成或修订长期行为约定，或说明既有规格足够、本次无需修改。Spec 不是工作进度或代码的另一份描述。
 

@@ -4,7 +4,7 @@ description: Use for an explicitly authorized package, PR, merge, release, deplo
 license: MIT
 ---
 
-# Vision-Harhess: Release Delivery
+# Vision-Harness: Release Delivery
 
 完成本轮明确授权的交付动作，分别说明真实结果、失败或部分成功。动作不是默认流水线。
 
