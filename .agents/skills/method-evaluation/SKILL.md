@@ -3,7 +3,7 @@ name: method-evaluation
 description: 维护者按需评价 Vision Harness 的工作入口、条件 references 与真实行为成本；候选与判据隔离，不进入普通用户必经流程。
 ---
 
-# Method Evaluation
+# Vision-Harhess: Method Evaluation
 
 这是研发仓库维护者入口，不装配进普通 Plugin。以行为 Spec、架构职责矩阵和公开/盲测场景作为独立依据；Skill 自己不能成为唯一成功标准。
 
