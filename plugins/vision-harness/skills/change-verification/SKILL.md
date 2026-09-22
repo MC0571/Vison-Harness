@@ -1,54 +1,48 @@
 ---
 name: change-verification
-description: Use when a precise candidate needs checks executed, existing evidence reused, or evidence audited against a concrete promise. Returns scoped pass, fail, blocked, not-run, and uncovered results; it does not repair the candidate or declare the whole product complete.
+description: Use to execute checks, reuse evidence, or audit a precise candidate against a concrete promise. Derives discriminating checks from failure modes and observation points, reports scoped outcomes and uncovered areas, and does not repair the candidate or inflate low-level checks into whole-product completion.
 license: MIT
 ---
 
 # Change Verification
 
-交付与当前承诺相匹配、绑定准确候选的验证证据和未覆盖范围。
+交付与当前承诺匹配、绑定准确候选的证据及未覆盖范围，而不是通过数量。
 
 ## 何时使用／何时不使用
 
-三种模式：直接执行、证据复用、证据审计。用于需要独立取证或判断现有证据适用性时；实现过程中必要的基本测试仍由实现工作完成。本技能默认不修代码。
+直接执行、证据复用、证据审计是并列模式。实现工作自行完成基本测试；需要进一步取证或判断现有证据时使用本入口。只读审计不自动运行命令，本技能不默认修代码。
 
-## 输入与环境条件
+## 输入与开始前的最少读取
 
-需要待证明承诺、候选、环境和允许副作用。命令从项目实际配置发现；外部网络、数据库、生产资源和真实账号需要相应授权。缺一项只限制对应检查。
+固定要支持的结论、候选、环境与允许副作用。读取相关变更、原始证据和真实检查入口。根据内容影响而非扩展名判断：指令 Markdown 可能改变行为，普通文案则未必。
 
-## 开始前的最少读取
+## 工作方法
 
-固定候选和承诺，读取现有原始证据、变更范围及真实检查入口。先判断旧证据对象、版本、环境、入口和覆盖是否仍适用。
-
-## 执行步骤与关键分支
-
-1. 将承诺拆成可由格式/结构、单元、集成、正式入口、安装或行为证据支持的部分。
-2. 列出现有证据及范围，比较当前变化是否影响结论；适用则复用并说明理由，失效部分才补验。
-3. 选择与风险相称的最小检查集合，不用总分或大量低层检查抵消核心缺口。
-4. 直接执行前说明命令、环境和可能副作用；记录退出码、关键输出和生成对象。
-5. 失败先区分产品、测试设置、环境与权限；只有识别出瞬时原因或设置修复才重试。
-6. 候选在运行后变化时判断哪些证据失效；本技能不默认修改候选。
-7. 对照承诺分别报告 `pass`、`fail`、`blocked`、`not-run`、`not-applicable` 及未覆盖内容。
+1. 将当前承诺拆成需要判断的结果，找出会违反它的具体失败方式；不扩展成全产品验收。
+2. 为每种重要失败选择能观察它的边界，再选择足以区分正确与错误的最小检查。跨组件承诺不能只靠局部 mock 或格式检查。
+3. 核对已有证据的对象、版本、环境、入口和覆盖。说明当前变化为何影响或不影响其前提，只补失效与真正缺失部分。
+4. 选择与风险相称的检查集合，说明必要覆盖与剩余限制；不为“更稳妥”重复同类低信息检查。
+5. 直接执行前核对真实命令、目录、环境和副作用；保存退出码、关键输出、构件身份与候选，不只记录“成功”。
+6. 失败先区分产品、设置、环境和权限。重试须有识别出的暂时原因或设置变化；不靠随机重跑抹掉失败，不降低断言。
+7. 对照承诺报告 pass、fail、blocked、not-run、not-applicable，以及执行/继承/审计方式。继承的通过不是本轮又执行了一次。
 
 ## 按条件加载的本地资源
 
-| 触发条件 | 文件 | 使用目的 |
+| 条件 | 文件 | 用途 |
 | --- | --- | --- |
-| 选择证据类型与强度 | [验证选择](references/verification-selection.md) | 将承诺映射到判别检查 |
-| 执行、重试或回读证据 | [验证执行](references/verification-execution.md) | 固定候选并处理失败 |
-| 复用或审计已有证据 | [证据规则](references/evidence-rules.md) | 判断变化影响与结论层级 |
-| 涉及外部副作用 | [共同操作边界](references/common-rules.md) | 核对授权与停止位置 |
+| 从承诺选择检查 | [验证选择](references/verification-selection.md) | 失败方式、观察点与最小集合 |
+| 实际执行、处理失败或核对结果 | [验证执行](references/verification-execution.md) | 候选固定与证据保存 |
+| 复用或审计旧证据 | [证据规则](references/evidence-rules.md) | 前提影响与有限结论 |
+| 涉及文件、网络或外部资源 | [共同操作边界](references/common-rules.md) | 授权与安全副作用 |
 
 ## 输出与完成条件
 
-输出检查对象、候选、来源/环境、执行或复用内容、逐项结果、覆盖和未覆盖部分。证据足以支持本次承诺时完成；只读审计不执行命令；环境阻塞按项报告。结构正确不等于宿主行为或 Agent 效果正确。
+说明对象、候选、结论范围、检查方式、逐项结果、覆盖和未覆盖内容。已经足以支持当前要求时完成，不无限追加检查。检查完成与检查通过不是同一件事，blocked 不得变成 pass。
 
-## 异常与停止边界
+## 停止与例外
 
-失败保留原始结果，不降低断言或修代码制造通过。没有运行的命令不得写成通过。验证不自动产生独立审查、验收、合并、发布或关闭授权。
+候选改变后只让受影响证据失效。没有现成检查入口时可提出最小方法；实际创建或执行必须符合本轮权限，不凭空编造正式命令。验证不自动授权修复、独立审查、验收、合并、发布或关闭。
 
-## 简短输入输出示例
+## 示例
 
-正常：候选只改 Markdown 资源，复用未受影响的单元证据，执行资源链接与装配检查，明确宿主安装未覆盖。
-
-边界：安装检查因无宿主权限未启动，报告 `blocked`，不把结构检查称为安装通过。
+公开协议改动：先指出调用者可能误读的字段/错误语义，选择真实边界检查；不以 JSON 能解析替代协议兼容。只改帮助文案且运行语义未变时，局部格式/链接检查可以足够，不要求全量重验。
