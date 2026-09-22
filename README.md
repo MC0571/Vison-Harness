@@ -16,7 +16,7 @@ Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Pl
 
 ## 当前提供的实现
 
-vision-harness Plugin 候选 0.4.0-alpha.2 组合分发十二个普通 Skill。每个 `.agents/skills/<name>/` 都包含完整 `SKILL.md`、本地方法资源、可选模板和许可证，可以单独导出并复制；Plugin 不再用根级 references 为薄入口补方法。维护者的 `method-evaluation` 仍只存在研发仓库。
+vision-harness Plugin 候选 0.4.0-alpha.2 组合分发十二个普通 Skill。每个 `.agents/skills/<name>/` 都包含完整 `SKILL.md`、本地方法资源、可选模板和许可证；对应的 `plugins/vision-harness/skills/<name>/` 是可直接复制到消费项目的完整单元。Plugin 不再用根级 references 为薄入口补方法。维护者的 `method-evaluation` 仍只存在研发仓库。
 
 | 独立结果 | Skill |
 | --- | --- |
@@ -35,17 +35,7 @@ vision-harness Plugin 候选 0.4.0-alpha.2 组合分发十二个普通 Skill。�
 
 源码边界是 `.agents/skills/`；四份共同方法的单一维护源位于 `skill-resources/`，装配时按显式映射物化进各 Skill；组合构件位于 `plugins/vision-harness/skills/`。详细职责和无兄弟 Skill 时的完成边界见 [产品架构](ARCHITECTURE.md)。
 
-开发命令：
-
-```bash
-python3 scripts/assemble_plugin.py
-python3 scripts/validate_skills.py --source
-python3 scripts/validate_skills.py --package
-python3 scripts/assemble_plugin.py --export-skill breakdown --output /tmp/vision-harness-export
-python3 scripts/assemble_plugin.py --check
-```
-
-导出的 `/tmp/vision-harness-export/breakdown/` 是完整单元；复制到消费项目 `.agents/skills/breakdown/` 前必须确认目标目录无冲突。安装整个 Plugin 的说明见 [Plugin 使用说明](plugins/vision-harness/README.md)。
+维护者开发环境、生成前 `--check`、必要装配及装配后检查顺序见 [Plugin 使用说明的研发装配与检查](plugins/vision-harness/README.md#研发装配与检查)。消费项目直接取准确版本构件中的 `plugins/vision-harness/skills/<name>/` 完整目录，确认目标 `.agents/skills/<name>/` 不存在或无冲突后整体复制即可。不要覆盖已有同名目录；消费项目不需要 Python 环境，也不需要运行本仓库的全仓校验。安装整个 Plugin 的说明见 [Plugin 使用说明](plugins/vision-harness/README.md)。
 
 当前源码和构件具备完整方法资源，确定性结构、装配和迁移检查由仓库脚本执行。宿主安装、任务行为和长期效果需要各自的证据；具体候选的运行结果见对应 PR 与 CI 记录，局部任务通过不证明普遍可靠或高效。上一轮实现记录在 [PR #38](https://github.com/MC0571/Vison-Harness/pull/38)，只作为历史，旧证据不能自动外推到本候选。
 

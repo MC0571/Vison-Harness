@@ -1,6 +1,6 @@
 ---
 name: spec-development
-description: Use when a confirmed task needs a durable behavioral contract established, revised, or judged. Skip clear implementation when the existing contract is sufficient; a missing Spec file alone does not block implementation, and this skill does not implement code.
+description: Use when confirmed behavior needs a durable contract formed or revised, or when this work must decide that the existing contract is sufficient. An independent gap or sufficiency judgment on a fixed candidate belongs to review; a missing Spec file alone does not block implementation, and this skill does not implement code.
 license: MIT
 ---
 
@@ -10,7 +10,9 @@ license: MIT
 
 ## 何时使用／何时不使用
 
-只有当本轮需要建立、修订或判断长期行为约定时使用。清晰实施请求若既有约定足够，直接进入实施；缺少 Spec 文件本身不构成实施阻塞。纯内部重构通常零 Spec 变化；一个 Issue 不自动对应一个新 Spec。
+本 Skill 的结果只有两类：形成/修订长期行为契约，或根据现有契约给出本次无需修改的结论。清晰实施请求若既有约定足够，直接进入实施；缺少 Spec 文件本身不构成实施阻塞。纯内部重构通常零 Spec 变化；一个 Issue 不自动对应一个新 Spec。
+
+若候选已经固定，而本轮要以独立判断职责寻找缺口、冲突或充分性问题，归入 `review` 判断。这里的“独立”指职责与候选边界，不表示必须启动新 Agent；没有兄弟 Skill 时仍可按一般审查能力完成。Spec 工作仍保留自身的反例自检；独立审查是可单独请求的判断，不是本 Skill 的必经阶段。
 
 ## 输入与开始前的最少读取
 
@@ -24,7 +26,7 @@ license: MIT
 4. 依据本次语义选择反例：拒绝/失败、重复、顺序、并发、恢复、权限与兼容。只展开会改变正确性判断的分支，不照表新增产品承诺。
 5. 做双向覆盖：当前确认行为是否有精确表达；新增条款是否有真实依据。定义范围外的远期工作不在 Spec 中复制成进度清单。
 6. 对照相邻规格的词义、状态、所有权和适用版本。冲突先区分不同范围、旧决定与真正不相容；技术偏好不能解决产品取舍。
-7. 用“符合字面却仍违反目标”的反例检查充分性。只更新受影响条款，获准写入后回读；不写负责人、优先级、里程碑或实施状态。
+7. 用“符合字面却仍违反目标”的反例做 Spec 自检，检查条款是否足以区分正确与错误实现。只更新受影响条款，获准写入后回读；若另有独立候选审查请求，将准确版本交给 `review`，不把自检结果写成独立审查结论；不写负责人、优先级、里程碑或实施状态。
 
 ## 按条件加载的本地资源
 
@@ -37,7 +39,7 @@ license: MIT
 
 ## 输出与完成条件
 
-输出变化或无需修改结论、语义边界、实际文件和真正未决项。当前范围中适用行为可判断、条款有依据、实质冲突已处理或准确保留未决即可；不以文件数或表格齐全判断。规格完成不等于实现或审查通过。
+输出形成/修订的契约，或无需修改结论，并说明语义边界、实际文件和真正未决项。当前范围中适用行为可判断、条款有依据、实质冲突已处理或准确保留未决即可；不以文件数或表格齐全判断。规格完成不等于实现，也不冒充对固定候选的独立审查通过。
 
 ## 停止与例外
 
