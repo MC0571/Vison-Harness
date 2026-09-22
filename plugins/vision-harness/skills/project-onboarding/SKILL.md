@@ -1,53 +1,46 @@
 ---
 name: project-onboarding
-description: Use when a new, existing, or partially adopting project needs its Vision Harness adoption gaps identified and the smallest authorized integration applied. Reuses equivalent project facts and does not rebuild the repository or require global planning first.
+description: Use when a new, existing, or partially adopting project needs its real adoption gaps identified and the smallest authorized integration applied. Reuses equivalent project facts and returns a usable entry or a justified no-change result, not a new document suite.
 license: MIT
 ---
 
 # Project Onboarding
 
-交付项目的真实接入结果：现有入口、缺口分类、实际改动或零改动、可确认命令和剩余限制。
+交付可使用的最小接入：已有权威入口、真实缺口、实际改动或零改动、命令来源与加载限制。
 
 ## 何时使用／何时不使用
 
-用于新项目接入、既有项目补齐最少导航/规则，或局部采用一种能力。不用于重建已有项目、强制生成文档套餐或在明确实施请求前重跑愿景和全局规划。
+用于新项目、既有项目或局部采用。明确实施任务且现有上下文充分时直接工作，不先接入全套方法。
 
-## 输入与环境条件
+## 输入与开始前的最少读取
 
-需要目标目录和期望采用范围。愿景、规格、规则、工作入口和命令从项目读取；采用深度与新增权威载体由用户决定。缺 GitHub 工具时仍可完成本地分析，但不能另建任务数据库或宣称 GitHub 接入完成。
+固定目标目录、采用哪种工作能力和允许写入范围。按本次能力定位目标、工作项、语义约定、Agent 指引和命令；不因这些类别存在就全部要求补齐。命令从实际 manifest、脚本、Makefile、CI 与维护说明核对。
 
-## 开始前的最少读取
+## 工作方法
 
-读取目标项目已有愿景/产品说明、长期规格与架构入口、根和相关局部规则、工作跟踪入口，以及 manifest、脚本、Makefile、CI 中的真实命令。只读与本次采用范围相关内容。
-
-## 执行步骤与关键分支
-
-1. 明确是新项目、已有项目还是局部采用，并固定允许写入范围。
-2. 将现状分类为：已满足、只缺导航、缺规则、缺关键输入、工具不可用；同一项目可有多类。
-3. 复用等价材料和现有布局。文件名不同不是缺口，不移动整个目录，也不生成 VISION/ARCHITECTURE/ADR/Spec 套餐。
-4. 为每个真实缺口提出最小改动及其作用；复杂 reviewer 配置只在本次明确需要时处理。
-5. 只执行已授权的必要变化，完整读取目标、保护无关内容、写后回读。
-6. 从实际配置确认可用命令；没有入口时报告缺口，不猜测命令或引入整套工具。
-7. 再次运行且无新事实时返回零写入。
+1. 按事实职责而非文件名检查现状：谁维护什么、从哪里读、何时生效。
+2. 区分已满足、只缺导航、缺可执行规则、缺关键输入、来源冲突和工具不可用。等价材料直接复用，不能仅因名称或标题不同判定缺失。
+3. 来源冲突先比较对象、范围、版本和有效决定；不要机械宣布 CI、最新文档或最长文件永远获胜。
+4. 为每个真实缺口选择最小修正。只缺入口就补入口，不复制已存在的规则；关键产品取舍缺失则只暂停依赖它的接入。
+5. 在授权内完整读取、最小修改、保留无关内容、写后回读。宿主专用配置必须核对实际支持，不修改全局信任、凭据或权限。
+6. 从实际工作目录走读本次能力所需入口，区分文件存在、可手读和宿主实际加载。再次运行无新事实时零写入。
 
 ## 按条件加载的本地资源
 
-| 触发条件 | 文件 | 使用目的 |
+| 条件 | 文件 | 用途 |
 | --- | --- | --- |
-| 判断新项目、已有项目或局部采用 | [采用缺口](references/adoption-gap.md) | 选择最小接入分支 |
-| 查构建命令或规则加载方式 | [工具与指引](references/tooling-and-instructions.md) | 核对真实入口和加载事实 |
-| 涉及写入或授权边界 | [共同操作边界](references/common-rules.md) | 安全修改并限定完成层级 |
+| 判断现有材料是否等价、冲突或缺失 | [采用缺口](references/adoption-gap.md) | 按职责接入而非按文件套餐接入 |
+| 发现命令、规则与加载入口 | [工具与指引](references/tooling-and-instructions.md) | 核对项目实际配置 |
+| 修改文件或共享事实 | [共同操作边界](references/common-rules.md) | 授权、并发保护与回读 |
 
 ## 输出与完成条件
 
-正常完成需列出现有入口、真实缺口、实际改动、可确认命令和限制。只读请求给出最小建议；已有条件充分时以零改动完成；外部工具不可用时只将对应接入标为受阻。本地文件完成不等于宿主已自动加载。
+说明已满足入口、缺口及影响、实际修改、命令来源和剩余限制。当前采用能力已有可定位的输入和必要规则即可完成；无必要修改是正常结果。未访问 GitHub 不等于没有工作项，本地文件完成也不等于宿主接入完成。
 
-## 异常与停止边界
+## 停止与例外
 
-不修改全局 Codex 配置、凭据、信任或其他项目。需要用户决定项目长期目标时暂停该项，不用模板替用户决定。未授权 GitHub 写入时停止在本地结果。
+缺一个外部工具只限制对应部分，不创建平行 tasks 或状态数据库。既有布局可用就保留；不要求用户为已授权的局部可逆修改逐项重新确认。
 
-## 简短输入输出示例
+## 示例
 
-正常：已有 README、Spec 和测试脚本，只缺根 AGENTS 导航；获准后增加一处最小导航并回读，报告真实测试命令。
-
-边界：项目已有等价规则但文件名不同，输出“无需修改”，不复制成新套餐。
+项目以 `docs/product.md` 维护目标、CI 提供测试命令，只缺 Agent 找到它们的入口：补一处导航，不另建 VISION/ARCHITECTURE/Spec 套餐。若 README 与 CI 使用不同测试配置，先辨认本地开发与发布检查的不同职责，不直接删除其中一个。
