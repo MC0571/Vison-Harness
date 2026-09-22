@@ -1,6 +1,6 @@
 {
   "name": "vision-harness",
-  "version": "0.4.0-alpha.1",
+  "version": "0.4.0-alpha.2",
   "description": "十二个资源自包含、可独立使用的工程 Skills，并以 Plugin 组合分发。",
   "author": {
     "name": "MC0571",

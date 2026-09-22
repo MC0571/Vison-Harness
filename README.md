@@ -16,7 +16,7 @@ Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Pl
 
 ## 当前提供的实现
 
-vision-harness Plugin 候选 0.4.0-alpha.1 组合分发十二个普通 Skill。每个 `.agents/skills/<name>/` 都包含完整 `SKILL.md`、本地方法资源、可选模板和许可证，可以单独导出并复制；Plugin 不再用根级 references 为薄入口补方法。维护者的 `method-evaluation` 仍只存在研发仓库。
+vision-harness Plugin 候选 0.4.0-alpha.2 组合分发十二个普通 Skill。每个 `.agents/skills/<name>/` 都包含完整 `SKILL.md`、本地方法资源、可选模板和许可证，可以单独导出并复制；Plugin 不再用根级 references 为薄入口补方法。维护者的 `method-evaluation` 仍只存在研发仓库。
 
 | 独立结果 | Skill |
 | --- | --- |

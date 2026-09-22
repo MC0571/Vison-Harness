@@ -1,6 +1,6 @@
 ---
 name: tdd-development
-description: Use when authorized behavior, a defect, or a refactor needs implementation and basic verification, or when a bounded diagnosis is requested. Selects useful observation boundaries, independent test expectations, and a discriminating feedback loop; does not require sibling Skills or unauthorized delivery actions.
+description: Use for authorized implementation, defect repair, or refactor with basic verification, or for bounded diagnosis. Implement directly only when target, scope, authorization, and confirmed semantics are sufficient; honor project-required Spec and keep diagnosis-only work read-only.
 license: MIT
 ---
 
@@ -10,19 +10,19 @@ license: MIT
 
 ## 何时使用／何时不使用
 
-新增行为、缺陷修复、行为保护下的重构或有界诊断。只审查候选不顺手修复；只读诊断不修改产品代码。完整当前范围由请求/Issue/Spec 决定，测试循环不能偷偷缩小它。
+新增行为、缺陷修复、行为保护下的重构或有界诊断。只读诊断不修改产品代码；目标、范围、授权和确认语义都足够时，实施直接进入本技能，不先重复上下文恢复。项目规则要求的 Spec/契约仍是实施前置；除此之外，缺少 Spec 文件本身不构成实施阻塞。只审查候选不顺手修复；未确认的语义、权限、环境或其他必要前置条件只阻塞受影响部分。完整当前范围由用户请求、Issue 或已有契约中的已确认内容决定，测试循环不能偷偷缩小它。
 
 ## 输入与开始前的最少读取
 
-固定承诺、候选、工作区、允许修改与停止位置。读取相关行为、目标实现、已有测试、稳定入口及受影响调用者；沿真实依赖扩大，不以“所有调用者”要求无关全仓扫描。测试入口来自项目实际配置与惯例。
+固定承诺、候选、工作区、允许修改与停止位置。读取相关行为约定（如有且与承诺有关）、目标实现、已有测试、稳定入口及受影响调用者；沿真实依赖扩大，不以“所有调用者”要求无关全仓扫描。测试入口来自项目实际配置与惯例。
 
 ## 工作方法
 
-1. 将当前承诺辨认为可观察行为、缺陷或不改行为的重构。只有影响正确性的语义歧义需要澄清，技术观察点通常由 Agent 自行选择，不逐个请求用户批准。
+1. 将当前承诺辨认为可观察行为、缺陷或不改行为的重构。先核对确认语义、权限、环境与其他必要前置条件；技术观察点通常由 Agent 自行选择，不逐个请求用户批准。
 2. 找到真实测试/运行入口，区分已有失败、目标失败与设置/环境失败。缺现成测试时可在授权内用现有运行环境构造最小检查，不擅自引入整套框架。
 3. 选择足以发现目标错误、尽量稳定的观察边界；用独立于当前实现的契约、已确认例子或不变量得到期望，避免同义反复断言。
 4. 新行为一片一片红—绿；缺陷先建立针对原症状的反馈并定位根因；重构先确认行为保护。失败应能区分目标正确与错误，而不只是“命令运行了”。
-5. 在最小正确责任位置实现，重跑同一检查；按当前剩余承诺继续下一片。测试替身只替代必要边界，不把整个被测逻辑都替换掉。
+5. 获准实施时，在最小正确责任位置实现并重跑同一检查；按当前剩余承诺继续下一片。只诊断时保持候选不变。测试替身只替代必要边界，不把整个被测逻辑都替换掉。
 6. 绿灯后可在行为保护下局部重构，检查复杂度是否真正减少；不要机械禁止重构，也不借机扩大范围。
 7. 根据受影响接口、持久化、调用者和真实使用路径补必要回归。核对所有本轮承诺，目标测试绿色不自动表示完整交付。
 8. 清除临时诊断残留，保护用户原文件；记录候选、实际命令、结果和未覆盖范围，到未授权的提交/推送/PR/合并/发布边界停止。
@@ -31,13 +31,13 @@ license: MIT
 
 | 条件 | 文件 | 用途 |
 | --- | --- | --- |
-| 需要发现入口或缺少现成测试 | [测试发现](references/test-discovery.md) | 使用真实运行环境 |
-| 新行为、缺陷或重构循环 | [TDD 循环](references/tdd-cycle.md) | 可观察切片与基本保护 |
-| 选择断言、观察边界或测试替身 | [测试质量](references/test-quality.md) | 防假保护与实现耦合 |
+| 测试/运行入口不明、缺少现成测试或环境会影响结论 | [测试发现](references/test-discovery.md) | 使用真实运行环境 |
+| 新增切片、缺陷复现或重构保护难以建立 | [TDD 循环](references/tdd-cycle.md) | 可观察切片与基本保护 |
+| 断言/观察边界难选或测试疑似耦合实现 | [测试质量](references/test-quality.md) | 防假保护与实现耦合 |
 | 根因不明、偶发、性能或难复现 | [调试](references/debugging.md) | 反馈、缩减、差分与假设检验 |
 | 判断抽象、防御和兼容负担 | [复杂度控制](references/complexity-control.md) | 有依据的局部简化 |
-| 报告、扩大或继承验证 | [证据规则](references/evidence-rules.md) | 候选与覆盖边界 |
-| 涉及副作用和交付 | [共同操作边界](references/common-rules.md) | 授权范围内连续推进 |
+| 需要复用/审计旧证据或扩大验证 | [证据规则](references/evidence-rules.md) | 候选与覆盖边界 |
+| 涉及外部副作用、提交/交付或授权变化 | [共同操作边界](references/common-rules.md) | 授权范围内连续推进 |
 
 ## 输出与完成条件
 

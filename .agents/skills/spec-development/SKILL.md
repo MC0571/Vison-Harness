@@ -1,6 +1,6 @@
 ---
 name: spec-development
-description: Use when confirmed work changes observable behavior, states, invariants, interfaces, permissions, failure semantics, or compatibility. Derives a durable semantic contract with scenarios and coverage checks, or returns a justified no-change result without treating implementation progress as requirements.
+description: Use when a confirmed task needs a durable behavioral contract established, revised, or judged. Skip clear implementation when the existing contract is sufficient; a missing Spec file alone does not block implementation, and this skill does not implement code.
 license: MIT
 ---
 
@@ -10,11 +10,11 @@ license: MIT
 
 ## 何时使用／何时不使用
 
-新增行为、澄清已有意图、修正错误规格或检查 Spec surface 时使用。纯内部重构通常零 Spec 变化；一个 Issue 不自动对应一个新 Spec。
+只有当本轮需要建立、修订或判断长期行为约定时使用。清晰实施请求若既有约定足够，直接进入实施；缺少 Spec 文件本身不构成实施阻塞。纯内部重构通常零 Spec 变化；一个 Issue 不自动对应一个新 Spec。
 
 ## 输入与开始前的最少读取
 
-读取已确认范围、有效产品决定、现有相关规格及相邻语义边界；无既有 Spec 时仍可从确认范围开始，不把缺文件当成缺需求。代码说明实际状态，不自动决定应有行为。
+读取已确认范围、有效产品决定、现有相关规格（如有）及相邻语义边界；无既有 Spec 时仍可从确认范围开始，不把缺文件当成缺需求或实施阻塞。代码说明实际状态，不自动决定应有行为。
 
 ## 工作方法
 
@@ -30,10 +30,10 @@ license: MIT
 
 | 条件 | 文件 | 用途 |
 | --- | --- | --- |
-| 判断是否需要长期语义变化 | [Spec surface](references/spec-surface.md) | 区分行为变化与内部重构 |
-| 提取行为、检查遗漏或解决语义冲突 | [Spec 写作](references/spec-authoring.md) | 场景、反例与双向覆盖 |
+| 契约影响不明确或需区分内部重构 | [Spec surface](references/spec-surface.md) | 区分行为变化与内部重构 |
+| 需要形成/修订场景、反例或处理跨规格冲突 | [Spec 写作](references/spec-authoring.md) | 场景、反例与双向覆盖 |
 | 获准新建且项目无等价布局 | [行为提纲](assets/behavior-spec-outline.md) | 可选写作起点 |
-| 修改与完成层级判断 | [共同操作边界](references/common-rules.md) | 安全写入与授权 |
+| 涉及修改共享事实、授权变化或提交/交付 | [共同操作边界](references/common-rules.md) | 安全写入与完成层级 |
 
 ## 输出与完成条件
 

@@ -1,6 +1,6 @@
 # Vision Harness Plugin
 
-0.4.0-alpha.1 组合分发十二个职责明确、资源自包含的普通 Skill。每个 `skills/<name>/` 都有自己的方法 references、可选 assets 和 LICENSE；Plugin 没有根级方法 references，也不负责补齐不完整 Skill。
+0.4.0-alpha.2 组合分发十二个职责明确、资源自包含的普通 Skill。每个 `skills/<name>/` 都有自己的方法 references、可选 assets 和 LICENSE；Plugin 没有根级方法 references，也不负责补齐不完整 Skill。
 
 ## 工作入口
 
@@ -68,6 +68,8 @@ python3 scripts/test_assemble_plugin.py
 python3 scripts/test_validate_skills.py
 python3 scripts/assemble_plugin.py --check
 ```
+
+[CI](../../.github/workflows/ci.yml) 在面向 `main` 的 PR 和 `main` 推送中执行上述校验、回归测试与只读装配检查；检查提交中的生成物，不先重新装配来消除漂移。
 
 装配递归保留完整目录、二进制内容和执行位；`--check` 是只读漂移检查。结构与迁移检查只证明当前文件集合、封装和确定性规则，不证明宿主安装、自动触发、权限隔离或 Agent 效果。
 
