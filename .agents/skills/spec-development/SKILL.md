@@ -4,7 +4,7 @@ description: Use when a confirmed task needs a durable behavioral contract estab
 license: MIT
 ---
 
-# Spec Development
+# Vision-Harhess: Spec Development
 
 形成或修订长期行为约定，或说明既有规格足够、本次无需修改。Spec 不是工作进度或代码的另一份描述。
 

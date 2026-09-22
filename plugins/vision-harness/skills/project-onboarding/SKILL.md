@@ -4,7 +4,7 @@ description: Use when a new, existing, or partially adopting project needs its r
 license: MIT
 ---
 
-# Project Onboarding
+# Vision-Harhess: Project Onboarding
 
 交付可使用的最小接入：已有权威入口、真实缺口、实际改动或零改动、命令来源与加载限制。
 

@@ -4,7 +4,7 @@ description: Use when confirmed work needs a safe implementation path, module or
 license: MIT
 ---
 
-# Technical Design
+# Vision-Harhess: Technical Design
 
 交付受影响范围内的设计判断与可实施路径：为何沿用或调整结构、如何保持契约、怎样安全迁移，以及必要的长期记录。
 

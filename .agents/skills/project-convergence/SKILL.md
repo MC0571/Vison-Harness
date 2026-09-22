@@ -4,7 +4,7 @@ description: Use for a bounded phase or capability review, or to investigate a s
 license: MIT
 ---
 
-# Project Convergence
+# Vision-Harhess: Project Convergence
 
 判断当前阶段或能力是否仍向有效目标收敛，交付具体偏离、影响和限定纠偏；没有实质偏离可零修改。
 
