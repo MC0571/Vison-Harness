@@ -1,5 +1,7 @@
 # Vision Harness
 
+[English](README.en.md) | [中文版](README.md)
+
 **帮助用户把软件项目的目标说清楚，并让编程 Agent 在不丢整体目标的前提下可靠、高效地持续交付。**
 
 Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Plugin 和 Skill 融入现有编程 Agent 工作环境。
@@ -18,7 +20,7 @@ Vision Harness 是一套面向 AI 编程 Agent 的软件工程方法，通过 Pl
 
 Vision Harness 可以作为一个 Codex Plugin 整包安装，也可以把单个 Skill 安装到消费项目。二选一，避免同一 Skill 出现两个来源。
 
-### 给用户：安装整个 Plugin
+### 安装整个 Plugin
 
 在 Codex CLI 中执行：
 
@@ -29,7 +31,7 @@ codex plugin add vision-harness@MC
 
 先添加上面的 marketplace；添加 `MC` 后，也可以改用 Codex UI，在该 marketplace 中选择 `vision-harness` 安装。安装完成后开启新会话，让宿主加载新的 Plugin。整包安装和维护命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。
 
-### 给用户：安装指定 Skill
+### 安装指定 Skill
 
 第三方 `npx skills` 的默认范围是当前项目；下面的命令把全部 Vision Harness Skill 安装给 Codex：
 
@@ -44,16 +46,6 @@ npx skills add https://github.com/MC0571/Vison-Harness/tree/main/plugins/vision-
 ```
 
 需要用户级安装时加 `-g`。不要使用 `--all`，它会把发现的全部 Skill 安装到全部 Agent。`--skill` 使用 `SKILL.md` frontmatter 的短名（例如 `review`），不是安装界面显示的 `Vision-Harhess: Review`。每个 Skill 目录都包含完整方法资源；`npx` 不需要安装本仓库的 npm 包，也不需要 Python。安装后开启新会话。
-
-### 给 Agent：最少安装请求
-
-可以直接复制下面的请求，并补上目标项目路径：
-
-```text
-请在目标项目 <项目路径> 安装 Vision Harness。
-默认安装整包 Plugin vision-harness@MC，由 Codex 用户级管理；如果目标项目只需要指定 Skill，则使用 npx skills，默认安装到当前项目，需要用户级安装时加 -g。
-只完成安装并报告结果，不要因为安装而执行任何 Vision Harness Skill 工作流程；安装后开启新会话。
-```
 
 遇到宿主不支持 Plugin 或 `npx skills` 时，可按 [单 Skill 复制](plugins/vision-harness/README.md#单-skill-复制) 手动复制完整目录。这是备选安装路径，不需要 Python。
 
