@@ -15,6 +15,7 @@ from markdown_it import MarkdownIt
 
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "vision-harness"
+PORTABLE_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
 
 SOURCE_SKILLS = (
     "using-vision-harness",
@@ -348,20 +349,45 @@ def validate_source(root: Path = ROOT) -> None:
 def validate_manifests(root: Path = ROOT) -> None:
     root = Path(root)
     package = root / "plugins" / "vision-harness"
-    manifest_path = package / ".codex-plugin" / "plugin.json"
+    manifest_path = package / "plugin.json"
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ValidationError(f"invalid plugin manifest: {manifest_path}: {exc}") from exc
     if not isinstance(manifest, dict):
         raise ValidationError(f"plugin manifest must be an object: {manifest_path}")
+    if manifest.get("$schema") != PORTABLE_SCHEMA:
+        raise ValidationError(f"invalid portable plugin schema: {manifest_path}")
     if manifest.get("name") != "vision-harness":
         raise ValidationError(f"invalid plugin name: {manifest_path}")
     if not isinstance(manifest.get("version"), str) or not VERSION_RE.fullmatch(manifest["version"]):
         raise ValidationError(f"invalid plugin version: {manifest_path}")
-    if manifest.get("skills") != "./skills/":
-        raise ValidationError(f"invalid plugin skills path: {manifest_path}")
-
+    allowed = {
+        "$schema",
+        "name",
+        "version",
+        "description",
+        "author",
+        "homepage",
+        "repository",
+        "license",
+        "keywords",
+        "extensions",
+    }
+    unknown = sorted(set(manifest) - allowed)
+    if unknown:
+        raise ValidationError(
+            f"unknown portable plugin fields in {manifest_path}: {', '.join(unknown)}"
+        )
+    extensions = manifest.get("extensions")
+    if not isinstance(extensions, dict):
+        raise ValidationError(f"invalid plugin extensions: {manifest_path}")
+    openai_extension = extensions.get("com.openai")
+    if not isinstance(openai_extension, dict):
+        raise ValidationError(f"invalid OpenAI interface extension: {manifest_path}")
+    interface = openai_extension.get("interface")
+    if not isinstance(interface, dict):
+        raise ValidationError(f"missing OpenAI interface extension: {manifest_path}")
     marketplace_path = root / ".agents" / "plugins" / "marketplace.json"
     try:
         marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
@@ -369,6 +395,14 @@ def validate_manifests(root: Path = ROOT) -> None:
         raise ValidationError(f"invalid marketplace manifest: {marketplace_path}: {exc}") from exc
     if not isinstance(marketplace, dict):
         raise ValidationError(f"marketplace manifest must be an object: {marketplace_path}")
+    if marketplace.get("name") != "MC":
+        raise ValidationError(f"marketplace name must be 'MC': {marketplace_path}")
+    marketplace_interface = marketplace.get("interface")
+    if (
+        not isinstance(marketplace_interface, dict)
+        or marketplace_interface.get("displayName") != "MC"
+    ):
+        raise ValidationError(f"marketplace display name must be 'MC': {marketplace_path}")
     plugins = marketplace.get("plugins")
     if not isinstance(plugins, list) or any(not isinstance(item, dict) for item in plugins):
         raise ValidationError(f"marketplace plugins must be an array of objects: {marketplace_path}")

@@ -62,7 +62,7 @@ def _validate_inputs(root: Path) -> None:
     for path in (
         root / "LICENSE",
         root / ".agents/plugins/marketplace.json",
-        root / PLUGIN_RELATIVE / ".codex-plugin/plugin.json",
+        root / PLUGIN_RELATIVE / "plugin.json",
         root / PLUGIN_RELATIVE / "README.md",
     ):
         if not path.is_file():
@@ -129,10 +129,9 @@ def _build_staging(root: Path, staging: Path) -> Path:
     package.mkdir()
     shutil.copy2(root / PLUGIN_RELATIVE / "README.md", package / "README.md")
     shutil.copy2(root / "LICENSE", package / "LICENSE")
-    (package / ".codex-plugin").mkdir()
     shutil.copy2(
-        root / PLUGIN_RELATIVE / ".codex-plugin/plugin.json",
-        package / ".codex-plugin/plugin.json",
+        root / PLUGIN_RELATIVE / "plugin.json",
+        package / "plugin.json",
     )
     skills = package / "skills"
     skills.mkdir()

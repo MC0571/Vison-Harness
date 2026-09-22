@@ -143,7 +143,7 @@ class AssemblyTests(unittest.TestCase):
             path.chmod(path.stat().st_mode | stat.S_IXUSR)
 
         def add_plugin_metadata(root: Path) -> None:
-            path = root / "plugins/vision-harness/.codex-plugin/stale.txt"
+            path = root / "plugins/vision-harness/stale-metadata.txt"
             path.write_text("stale\n", encoding="utf-8")
 
         mutations = {
@@ -205,13 +205,90 @@ class AssemblyTests(unittest.TestCase):
             ASSEMBLER.assemble(root)
             skills = root / "plugins/vision-harness/skills"
             before = tree_state(skills)
-            manifest = root / "plugins/vision-harness/.codex-plugin/plugin.json"
+            manifest = root / "plugins/vision-harness/plugin.json"
             payload = json.loads(manifest.read_text(encoding="utf-8"))
-            payload["skills"] = "../outside"
+            payload["$schema"] = "https://agent-plugins.org/schemas/0.9.0/plugin.schema.json"
             manifest.write_text(json.dumps(payload), encoding="utf-8")
             with self.assertRaises((SystemExit, ValueError)):
                 ASSEMBLER.assemble(root)
             self.assertEqual(before, tree_state(skills))
+
+    def test_invalid_portable_name_preserves_generated_skills(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = copy_repo(Path(temp))
+            ASSEMBLER.assemble(root)
+            skills = root / "plugins/vision-harness/skills"
+            before = tree_state(skills)
+            manifest = root / "plugins/vision-harness/plugin.json"
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+            payload["name"] = "wrong-name"
+            manifest.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaises((SystemExit, ValueError)):
+                ASSEMBLER.assemble(root)
+            self.assertEqual(before, tree_state(skills))
+
+    def test_invalid_openai_extension_preserves_generated_skills(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = copy_repo(Path(temp))
+            ASSEMBLER.assemble(root)
+            skills = root / "plugins/vision-harness/skills"
+            before = tree_state(skills)
+            manifest = root / "plugins/vision-harness/plugin.json"
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+            payload["extensions"]["com.openai"] = None
+            manifest.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaises((SystemExit, ValueError)):
+                ASSEMBLER.assemble(root)
+            self.assertEqual(before, tree_state(skills))
+
+    def test_portable_manifest_is_root_manifest_and_legacy_manifest_is_unused(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = copy_repo(Path(temp))
+            ASSEMBLER.assemble(root)
+            package = root / "plugins/vision-harness"
+            manifest_path = package / "plugin.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                manifest["$schema"],
+                "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+            )
+            self.assertEqual(manifest["name"], "vision-harness")
+            self.assertEqual(
+                manifest["version"],
+                json.loads((ROOT / "plugins/vision-harness/plugin.json").read_text(encoding="utf-8"))["version"],
+            )
+            self.assertNotIn("skills", manifest)
+            self.assertNotIn("interface", manifest)
+            self.assertEqual(manifest["extensions"]["com.openai"]["interface"]["displayName"], "Vision Harness")
+            self.assertFalse((package / ".codex-plugin").exists())
+
+            legacy = package / ".codex-plugin/plugin.json"
+            legacy.parent.mkdir()
+            legacy.write_text("{\"name\": \"legacy\"}\n", encoding="utf-8")
+            with self.assertRaises((SystemExit, ValueError)):
+                ASSEMBLER.check(root)
+
+    def test_marketplace_identity_uses_exact_mc_name_and_display_name(self) -> None:
+        marketplace = json.loads(
+            (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(marketplace["name"], "MC")
+        self.assertEqual(marketplace["interface"]["displayName"], "MC")
+
+    def test_invalid_marketplace_identity_preserves_package(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = copy_repo(Path(temp))
+            ASSEMBLER.assemble(root)
+            package = root / "plugins/vision-harness"
+            before = tree_state(package)
+            marketplace_path = root / ".agents/plugins/marketplace.json"
+            marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
+            marketplace["name"] = "mc0571"
+            marketplace["interface"]["displayName"] = "mc0571"
+            marketplace_path.write_text(json.dumps(marketplace), encoding="utf-8")
+            with self.assertRaises((SystemExit, ValueError)):
+                ASSEMBLER.assemble(root)
+            self.assertEqual(before, tree_state(package))
 
     def test_each_skill_exports_standalone_and_matches_package(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
