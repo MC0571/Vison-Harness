@@ -1,6 +1,6 @@
 ---
 name: review
-description: Use when a Spec, implementation, or PR needs a candidate-bound judgment. Separates requirement fidelity from engineering quality, challenges potential findings with counterevidence, and returns actionable defects or a clean limited result without modifying a review-only candidate.
+description: Use when a fixed Spec, implementation, or PR needs an independent candidate-bound judgment. Separates requirement fidelity from engineering quality, challenges potential findings with counterevidence, and returns actionable defects or a clean limited result without modifying a review-only candidate.
 license: MIT
 ---
 
@@ -10,7 +10,7 @@ license: MIT
 
 ## 何时使用／何时不使用
 
-Spec、Code、PR 三种对象可直接请求，不要求固定三轮审查或多个 Agent。只审查时不改候选；同时获准修复时先固定原候选判断，再转入独立实施步骤。
+Spec、Code、PR 三种对象可直接请求，不要求固定三轮审查或多个 Agent。对已形成的 Spec 候选，独立缺口、冲突和充分性判断由本 Skill 承担；Spec 自身的反例自检不替代它，但也不使本 Skill 成为 Spec 工作的必经阶段或兄弟依赖。只审查时不改候选；同时获准修复时先固定原候选判断，再转入独立实施步骤。
 
 ## 输入与开始前的最少读取
 
@@ -19,7 +19,7 @@ Spec、Code、PR 三种对象可直接请求，不要求固定三轮审查或多
 ## 工作方法
 
 1. 辨认审查对象与要作的判断，确认当前候选，避免混用旧 head 和新证据。
-2. Spec 检查确认目标、可判断行为、不变量、失败与相邻语义，尝试构造“符合字面却不满足结果”的反例。
+2. 对 Spec 候选独立检查目标、可判断行为、不变量、失败与相邻语义，尝试构造“符合字面却不满足结果”的反例；不因作者已做过自检而跳过候选核对。
 3. Code 同时看要求忠实度与工程质量：是否遗漏、错误实现或未经要求扩大行为；是否破坏责任、兼容、安全、错误传播和必要测试。两类问题不互相抵消。
 4. PR 核对当前 head 的范围、实现、有效审查、检查、目标分支与关闭语义。复用未受影响的结论，不机械重做全部分析。
 5. 在输出 finding 前尝试反证：触发条件真实可达吗？已有保护是否已处理？违反的是有效要求还是个人偏好？原问题是否属于当前范围？无法成立的删除或收窄为未决疑点。

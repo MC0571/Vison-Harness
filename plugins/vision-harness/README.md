@@ -32,21 +32,15 @@ codex plugin add vision-harness@personal
 
 当前分发使用 Codex 兼容清单 `.codex-plugin/plugin.json`，其 `skills` 指向 `./skills/`。这个 Plugin 格式与“每个 Skill 目录方法自包含”是两个边界：前者负责组合发现，后者保证单目录不依赖 Plugin 根或提供者仓库。
 
-## 单 Skill 导出与复制
+## 单 Skill 复制
 
-在研发仓库运行：
-
-```bash
-python3 scripts/assemble_plugin.py --export-skill breakdown --output /tmp/vision-harness-export
-```
-
-命令生成 `/tmp/vision-harness-export/breakdown/`。确认消费项目目标目录不存在或无冲突后，将整个目录复制到：
+准确版本构件中的 `skills/<name>/` 是完整单元。确认消费项目目标目录不存在或无冲突后，将整个目录复制到：
 
 ```text
-<consumer-project>/.agents/skills/breakdown/
+<consumer-project>/.agents/skills/<name>/
 ```
 
-不要只复制 `SKILL.md`，也不要覆盖消费项目已有同名目录。本命令不安装到用户全局环境，不携带其他 Skill、研发 METHOD/Spec/Eval 或 Plugin 清单。
+例如，将 `skills/breakdown/` 整体复制到消费项目的 `.agents/skills/breakdown/`。不要只复制 `SKILL.md`，也不要覆盖消费项目已有同名目录。消费项目不需要 Python 环境，也不需要运行本仓库的全仓校验。
 
 ## 研发装配与检查
 
@@ -60,8 +54,19 @@ source .venv/bin/activate
 python3 -m pip install -r requirements-dev.txt
 ```
 
+先运行只读漂移检查，识别已有构件状态；发现需要同步时再运行装配：
+
+```bash
+python3 scripts/assemble_plugin.py --check
+```
+
+若检查发现需要同步源副本或构件，再运行装配：
+
 ```bash
 python3 scripts/assemble_plugin.py
+```
+
+```bash
 python3 scripts/validate_skills.py --source
 python3 scripts/validate_skills.py --package
 python3 scripts/test_assemble_plugin.py
@@ -69,7 +74,15 @@ python3 scripts/test_validate_skills.py
 python3 scripts/assemble_plugin.py --check
 ```
 
-[CI](../../.github/workflows/ci.yml) 在面向 `main` 的 PR 和 `main` 推送中执行上述校验、回归测试与只读装配检查；检查提交中的生成物，不先重新装配来消除漂移。
+维护者需要验证单 Skill 导出时，可在上述开发环境准备完成后运行：
+
+```bash
+python3 scripts/assemble_plugin.py --export-skill breakdown --output /tmp/vision-harness-export
+```
+
+命令生成 `/tmp/vision-harness-export/breakdown/`，用于维护者核对导出结果；它不属于消费项目的安装前置步骤，不安装到用户全局环境，也不携带其他 Skill、研发 METHOD/Spec/Eval 或 Plugin 清单。
+
+[CI](https://github.com/MC0571/Vison-Harness/blob/main/.github/workflows/ci.yml) 在面向 `main` 的 PR 和 `main` 推送中执行上述校验、回归测试与只读装配检查；检查提交中的生成物，不先重新装配来消除漂移。
 
 装配递归保留完整目录、二进制内容和执行位；`--check` 是只读漂移检查。结构与迁移检查只证明当前文件集合、封装和确定性规则，不证明宿主安装、自动触发、权限隔离或 Agent 效果。
 
