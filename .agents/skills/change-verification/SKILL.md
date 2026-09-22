@@ -4,7 +4,7 @@ description: Use to execute checks, reuse evidence, or audit a precise candidate
 license: MIT
 ---
 
-# Vision-Harhess: Change Verification
+# Vision-Harness: Change Verification
 
 交付与当前承诺匹配、绑定准确候选的证据及未覆盖范围，而不是通过数量。
 

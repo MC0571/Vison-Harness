@@ -45,7 +45,7 @@ To install only selected Skills, use the short names in their frontmatter, for e
 npx skills add https://github.com/MC0571/Vison-Harness/tree/main/plugins/vision-harness/skills --skill review breakdown -a codex
 ```
 
-Add `-g` for user-level installation. Do not use `--all`: it installs every discovered Skill to every Agent. `--skill` uses the short name from `SKILL.md` frontmatter (for example, `review`), not the `Vision-Harhess: Review` label shown in the installation UI. Every Skill directory contains complete method resources; `npx` does not require publishing or installing this repository's npm package or preparing a Python environment. Start a new session after installation.
+Add `-g` for user-level installation. Do not use `--all`: it installs every discovered Skill to every Agent. `--skill` uses the short name from `SKILL.md` frontmatter (for example, `review`), not the `Vision-Harness: Review` label shown in the installation UI. Every Skill directory contains complete method resources; `npx` does not require publishing or installing this repository's npm package or preparing a Python environment. Start a new session after installation.
 
 If the host does not support Plugin or `npx skills`, manually copy the complete directory following [Copy a single Skill](plugins/vision-harness/README.md#单-skill-复制). This is a fallback installation path and does not require Python.
 

@@ -45,7 +45,7 @@ npx skills add https://github.com/MC0571/Vison-Harness/tree/main/plugins/vision-
 npx skills add https://github.com/MC0571/Vison-Harness/tree/main/plugins/vision-harness/skills --skill review breakdown -a codex
 ```
 
-需要用户级安装时加 `-g`。不要使用 `--all`，它会把发现的全部 Skill 安装到全部 Agent。`--skill` 使用 `SKILL.md` frontmatter 的短名（例如 `review`），不是安装界面显示的 `Vision-Harhess: Review`。每个 Skill 目录都包含完整方法资源；`npx` 不需要安装本仓库的 npm 包，也不需要 Python。安装后开启新会话。
+需要用户级安装时加 `-g`。不要使用 `--all`，它会把发现的全部 Skill 安装到全部 Agent。`--skill` 使用 `SKILL.md` frontmatter 的短名（例如 `review`），不是安装界面显示的 `Vision-Harness: Review`。每个 Skill 目录都包含完整方法资源；`npx` 不需要安装本仓库的 npm 包，也不需要 Python。安装后开启新会话。
 
 遇到宿主不支持 Plugin 或 `npx skills` 时，可按 [单 Skill 复制](plugins/vision-harness/README.md#单-skill-复制) 手动复制完整目录。这是备选安装路径，不需要 Python。
 

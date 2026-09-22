@@ -4,7 +4,7 @@ description: Use for authorized implementation, defect repair, or refactor with 
 license: MIT
 ---
 
-# Vision-Harhess: TDD Development
+# Vision-Harness: TDD Development
 
 交付当前承诺的实现与必要基本验证，或只诊断请求下可支持的原因、观察与未决问题。
 
