@@ -109,7 +109,14 @@ def export_skill(name: str, output: Path, root: Path = ROOT) -> Path:
             target.rmdir()
         else:
             raise ValueError(f"export target already exists and is not empty: {target}")
+    license_target = output / "LICENSE"
+    if license_target.exists() and (
+        not license_target.is_file() or license_target.read_bytes() != (root / "LICENSE").read_bytes()
+    ):
+        raise ValueError(f"export LICENSE differs from repository LICENSE: {license_target}")
     output.mkdir(parents=True, exist_ok=True)
+    if not license_target.exists():
+        shutil.copy2(root / "LICENSE", license_target)
     shutil.copytree(
         source,
         target,

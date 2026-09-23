@@ -109,7 +109,7 @@ python3 scripts/assemble_plugin.py --check
 python3 scripts/assemble_plugin.py --export-skill breakdown --output /tmp/vision-harness-export
 ```
 
-命令生成 `/tmp/vision-harness-export/breakdown/`，用于维护者核对导出结果；它不属于消费项目的安装前置步骤，不安装到用户全局环境，也不携带其他 Skill、研发 METHOD/Spec/Eval 或 Plugin 清单。
+命令生成 `/tmp/vision-harness-export/breakdown/`，并在导出目录根部放置一份仓库 `LICENSE`，用于维护者核对导出结果；它不属于消费项目的安装前置步骤，不安装到用户全局环境，也不携带其他 Skill、研发 METHOD/Spec/Eval 或 Plugin 清单。
 
 [CI](https://github.com/MC0571/Vison-Harness/blob/main/.github/workflows/ci.yml) 在面向 `main` 的 PR 和 `main` 推送中执行上述校验、回归测试与只读检查；检查提交中的共享副本，不先同步来消除漂移。
 

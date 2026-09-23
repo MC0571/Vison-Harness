@@ -122,6 +122,8 @@ class AssemblyTests(unittest.TestCase):
             skill_file.write_text(skill_file.read_text(encoding="utf-8") + "\n[Binary fixture](assets/fixture.bin)\n", encoding="utf-8")
             exported = ASSEMBLER.export_skill("breakdown", Path(temp) / "exports", root)
             VALIDATOR.validate_skill(exported)
+            self.assertEqual((exported.parent / "LICENSE").read_bytes(), (root / "LICENSE").read_bytes())
+            self.assertFalse((exported / "LICENSE").exists())
             self.assertEqual((exported / "assets/fixture.bin").read_bytes(), binary.read_bytes())
             self.assertEqual(stat.S_IMODE((exported / "scripts/fixture.sh").stat().st_mode), 0o755)
             self.assertFalse((exported / "__pycache__").exists())
@@ -143,6 +145,13 @@ class AssemblyTests(unittest.TestCase):
                 ASSEMBLER.export_skill("breakdown", output, ROOT)
             with self.assertRaises(ValueError):
                 ASSEMBLER.export_skill("breakdown", ROOT / "skills", ROOT)
+            conflict = Path(temp) / "conflict"
+            conflict.mkdir()
+            (conflict / "LICENSE").write_text("different\n", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                ASSEMBLER.export_skill("breakdown", conflict, ROOT)
+            self.assertEqual((conflict / "LICENSE").read_text(encoding="utf-8"), "different\n")
+            self.assertFalse((conflict / "breakdown").exists())
 
     def test_portable_manifest_and_marketplace_target_root(self) -> None:
         VALIDATOR.validate_manifests(ROOT)
