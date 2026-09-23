@@ -25,10 +25,9 @@ def make_skill(root: Path, body: str, extra: dict[str, bytes] | None = None) -> 
     skill.joinpath("SKILL.md").write_text(
         "---\nname: sample-skill\n"
         "description: Use when a sample workflow needs a deterministic result.\n"
-        "license: MIT\n---\n\n# Sample\n\n" + body,
+        "---\n\n# Sample\n\n" + body,
         encoding="utf-8",
     )
-    skill.joinpath("LICENSE").write_text("MIT\n", encoding="utf-8")
     for relative, content in (extra or {}).items():
         path = skill / relative
         path.parent.mkdir(parents=True, exist_ok=True)

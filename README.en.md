@@ -26,28 +26,28 @@ Run this in the Codex CLI:
 
 ```bash
 codex plugin marketplace add MC0571/Vison-Harness --ref main
-codex plugin add vision-harness@MC
+codex plugin add vision-harness@MC-SKILL
 ```
 
-Add the marketplace above first; after adding `MC`, you can also use the Codex UI to select `vision-harness` in that marketplace. After installation, start a new session so the host loads the new Plugin. See [Plugin usage instructions](plugins/vision-harness/README.md) for package installation and maintenance commands.
+Add the marketplace above first; after adding `MC-SKILL`, you can also use the Codex UI to select `vision-harness` in that marketplace. After installation, start a new session so the host loads the new Plugin. See [Plugin usage instructions](PLUGIN.md) for package installation and maintenance commands.
 
 ### Install selected Skills
 
 The default scope of third-party `npx skills` is the current project; the following command installs all Vision Harness Skills for Codex:
 
 ```bash
-npx skills add https://github.com/MC0571/Vison-Harness/tree/main/plugins/vision-harness/skills --skill '*' -a codex
+npx skills add https://github.com/MC0571/Vison-Harness/tree/main/skills --skill '*' -a codex
 ```
 
 To install only selected Skills, use the short names in their frontmatter, for example:
 
 ```bash
-npx skills add https://github.com/MC0571/Vison-Harness/tree/main/plugins/vision-harness/skills --skill review breakdown -a codex
+npx skills add https://github.com/MC0571/Vison-Harness/tree/main/skills --skill review breakdown -a codex
 ```
 
 Add `-g` for user-level installation. Do not use `--all`: it installs every discovered Skill to every Agent. `--skill` uses the short name from `SKILL.md` frontmatter (for example, `review`), not the `Vision-Harness: Review` label shown in the installation UI. Every Skill directory contains complete method resources; `npx` does not require publishing or installing this repository's npm package or preparing a Python environment. Start a new session after installation.
 
-If the host does not support Plugin or `npx skills`, manually copy the complete directory following [Copy a single Skill](plugins/vision-harness/README.md#单-skill-复制). This is a fallback installation path and does not require Python.
+If the host does not support Plugin or `npx skills`, manually copy the complete directory following [Copy a single Skill](PLUGIN.md#单-skill-复制). This is a fallback installation path and does not require Python.
 
 ### Work entry points
 
@@ -66,7 +66,7 @@ If the host does not support Plugin or `npx skills`, manually copy the complete 
 | System drift diagnosis and bounded correction | project-convergence |
 | Agent guidance and reviewer configuration | agent-instructions |
 
-See [Product architecture](ARCHITECTURE.md) and [development assembly and checks in the Plugin usage instructions](plugins/vision-harness/README.md#研发装配与检查) for architecture and maintainer assembly and check instructions.
+See [Product architecture](ARCHITECTURE.md) and [development assembly and checks in the Plugin usage instructions](PLUGIN.md#研发装配与检查) for architecture and maintainer assembly and check instructions.
 
 ## Starting from a vague idea
 

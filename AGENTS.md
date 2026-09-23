@@ -26,7 +26,7 @@
 
 对代码和确定性工具应用 TDD；对 Skill 或规则行为准备正反场景，并保留实际运行证据。修改 Markdown 指令、AGENTS.md 或配置可能改变 Agent 行为，应按影响选择验证，不能仅按扩展名免检。
 
-编辑普通 Skill 时修改 `.agents/skills/<name>/` 的人工方法文件；共同操作方法只编辑 `skill-resources/` 的单一来源。生成前先用 `python3 scripts/assemble_plugin.py --check` 识别旧构件状态；用 `python3 scripts/assemble_plugin.py` 同步共享副本、许可证和 Plugin 完整目录，不手工修改 `plugins/vision-harness/skills/`。完整性入口为 `python3 scripts/validate_skills.py --source`、`python3 scripts/validate_skills.py --package` 和两个 `scripts/test_*.py`。
+编辑普通 Skill 时修改 `skills/<name>/` 的人工方法文件；共同操作方法只编辑 `skill-resources/` 的单一来源。同步前先用 `python3 scripts/assemble_plugin.py --check` 识别漂移；用 `python3 scripts/assemble_plugin.py` 同步共享副本。许可仅在仓库根部 `LICENSE` 声明；`skills/` 同时是源码和 Plugin 读取目录，不生成第二份 Skill。完整性入口为 `python3 scripts/validate_skills.py --source`、`python3 scripts/validate_skills.py --package` 和两个 `scripts/test_*.py`。
 
 文档修改至少检查引用、范围一致性、Markdown 结构和意外文件变更。局部检查不证明真实 Agent 已经能够完成任务；结果必须说明对象、提交和未验证范围。
 

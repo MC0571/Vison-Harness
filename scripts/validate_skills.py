@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate self-contained Vision Harness Skill sources and packages."""
+"""Validate the shared Vision Harness Skill source and Plugin package."""
 
 from __future__ import annotations
 
@@ -14,7 +14,6 @@ from markdown_it import MarkdownIt
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugins" / "vision-harness"
 PORTABLE_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
 
 SOURCE_SKILLS = (
@@ -44,19 +43,6 @@ SHARED_RESOURCE_MAP = {
         {"tdd-development", "review", "change-verification", "release-delivery"}
     ),
 }
-
-REMOVED_ENTRIES = frozenset(
-    {
-        "assumption-validation",
-        "issue-shaping",
-        "delivery-coordination",
-        "simplification",
-        "spec-review",
-        "code-review",
-        "pr-review",
-        "review-setup",
-    }
-)
 
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 VERSION_RE = re.compile(
@@ -143,10 +129,6 @@ def _validate_metadata(metadata: dict, skill: Path) -> None:
     description = metadata.get("description")
     if not isinstance(description, str) or not description.strip() or len(description) > 1024:
         raise ValidationError(f"invalid Skill description in {skill}")
-
-    license_name = metadata.get("license")
-    if license_name != "MIT":
-        raise ValidationError(f"license must be 'MIT' in {skill}")
 
     compatibility = metadata.get("compatibility")
     if compatibility is not None and (
@@ -264,7 +246,7 @@ def _validate_links(path: Path, skill: Path) -> set[Path]:
     return linked
 
 
-def validate_skill(skill: Path, *, expected_license: bytes | None = None) -> None:
+def validate_skill(skill: Path) -> None:
     skill = Path(skill)
     if not skill.is_dir():
         raise ValidationError(f"Skill directory does not exist: {skill}")
@@ -277,12 +259,6 @@ def validate_skill(skill: Path, *, expected_license: bytes | None = None) -> Non
     _validate_metadata(metadata, skill)
     if not body.strip():
         raise ValidationError(f"empty Skill instructions: {skill_file}")
-
-    license_file = skill / "LICENSE"
-    if not license_file.is_file():
-        raise ValidationError(f"missing LICENSE: {skill}")
-    if expected_license is not None and license_file.read_bytes() != expected_license:
-        raise ValidationError(f"Skill LICENSE differs from repository LICENSE: {license_file}")
 
     direct_links = _validate_links(skill_file, skill)
     for path in skill.rglob("*.md"):
@@ -304,15 +280,14 @@ def validate_skill(skill: Path, *, expected_license: bytes | None = None) -> Non
         )
 
 
-def _skill_dirs(root: Path) -> set[str]:
-    return {path.parent.name for path in root.glob("*/SKILL.md")}
-
-
 def validate_source(root: Path = ROOT) -> None:
     root = Path(root)
-    skills_root = root / ".agents" / "skills"
-    actual = _skill_dirs(skills_root)
-    expected = set(SOURCE_SKILLS) | {"method-evaluation"}
+    skills_root = root / "skills"
+    if not skills_root.is_dir():
+        raise ValidationError(f"missing Skill directory: {skills_root}")
+    reject_symlinks(skills_root)
+    actual = {path.name for path in skills_root.iterdir() if path.is_dir()}
+    expected = set(SOURCE_SKILLS)
     if actual != expected:
         raise ValidationError(
             f"source Skill set differs: missing={sorted(expected - actual)}, extra={sorted(actual - expected)}"
@@ -320,11 +295,12 @@ def validate_source(root: Path = ROOT) -> None:
     license_path = root / "LICENSE"
     if not license_path.is_file():
         raise ValidationError(f"missing repository LICENSE: {license_path}")
-    license_bytes = license_path.read_bytes()
     shared_names = set(SHARED_RESOURCE_MAP)
     for name in SOURCE_SKILLS:
         skill = skills_root / name
-        validate_skill(skill, expected_license=license_bytes)
+        validate_skill(skill)
+        if (skill / "LICENSE").exists() or "license" in _frontmatter(skill / "SKILL.md")[0]:
+            raise ValidationError(f"Skill-level license duplicates repository LICENSE: {skill}")
         actual_shared = {
             path.name
             for path in (skill / "references").glob("*.md")
@@ -348,8 +324,7 @@ def validate_source(root: Path = ROOT) -> None:
 
 def validate_manifests(root: Path = ROOT) -> None:
     root = Path(root)
-    package = root / "plugins" / "vision-harness"
-    manifest_path = package / "plugin.json"
+    manifest_path = root / "plugin.json"
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -395,66 +370,25 @@ def validate_manifests(root: Path = ROOT) -> None:
         raise ValidationError(f"invalid marketplace manifest: {marketplace_path}: {exc}") from exc
     if not isinstance(marketplace, dict):
         raise ValidationError(f"marketplace manifest must be an object: {marketplace_path}")
-    if marketplace.get("name") != "MC":
-        raise ValidationError(f"marketplace name must be 'MC': {marketplace_path}")
+    if marketplace.get("name") != "MC-SKILL":
+        raise ValidationError(f"marketplace name must be 'MC-SKILL': {marketplace_path}")
     marketplace_interface = marketplace.get("interface")
     if (
         not isinstance(marketplace_interface, dict)
-        or marketplace_interface.get("displayName") != "MC"
+        or marketplace_interface.get("displayName") != "MC-SKILL"
     ):
-        raise ValidationError(f"marketplace display name must be 'MC': {marketplace_path}")
+        raise ValidationError(f"marketplace display name must be 'MC-SKILL': {marketplace_path}")
     plugins = marketplace.get("plugins")
     if not isinstance(plugins, list) or any(not isinstance(item, dict) for item in plugins):
         raise ValidationError(f"marketplace plugins must be an array of objects: {marketplace_path}")
     matching = [item for item in plugins if item.get("name") == "vision-harness"]
-    if len(matching) != 1 or matching[0].get("source", {}).get("path") != "./plugins/vision-harness":
+    if len(matching) != 1 or matching[0].get("source", {}).get("path") != "./":
         raise ValidationError(f"marketplace path does not match package: {marketplace_path}")
-
-
-def _same_tree(left: Path, right: Path) -> bool:
-    def state(root: Path, exclude_development: bool):
-        return {
-            str(path.relative_to(root)): (path.read_bytes(), path.stat().st_mode & 0o111)
-            for path in root.rglob("*")
-            if path.is_file()
-            and not (
-                exclude_development and is_development_artifact(path.relative_to(root))
-            )
-        }
-
-    return state(left, True) == state(right, False)
 
 
 def validate_package(root: Path = ROOT) -> None:
     root = Path(root)
-    package = root / "plugins" / "vision-harness"
-    skills_root = package / "skills"
-    actual = _skill_dirs(skills_root)
-    expected = set(SOURCE_SKILLS)
-    if actual != expected:
-        raise ValidationError(
-            f"package Skill set differs: missing={sorted(expected - actual)}, extra={sorted(actual - expected)}"
-        )
-    if (package / "references").exists():
-        raise ValidationError(f"obsolete plugin root references remain: {package / 'references'}")
-
-    license_path = root / "LICENSE"
-    package_license = package / "LICENSE"
-    if not license_path.is_file() or not package_license.is_file():
-        raise ValidationError(f"missing repository or plugin LICENSE: {license_path}, {package_license}")
-    license_bytes = license_path.read_bytes()
-    if package_license.read_bytes() != license_bytes:
-        raise ValidationError(f"plugin LICENSE differs from repository LICENSE: {package_license}")
-    for name in SOURCE_SKILLS:
-        packaged = skills_root / name
-        validate_skill(packaged, expected_license=license_bytes)
-        source = root / ".agents" / "skills" / name
-        if not _same_tree(source, packaged):
-            raise ValidationError(f"source and package Skill directories differ: {name}")
-    for name in REMOVED_ENTRIES | {"method-evaluation"}:
-        if (skills_root / name).exists():
-            raise ValidationError(f"maintainer or removed Skill leaked into package: {name}")
-
+    validate_source(root)
     validate_manifests(root)
 
 

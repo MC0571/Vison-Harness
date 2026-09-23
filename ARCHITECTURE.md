@@ -2,22 +2,22 @@
 
 ## 设计目标
 
-Vision Harness 由十二个可独立使用的普通 Skill 与一个组合分发 Plugin 构成。每个普通 Skill 目录是自己的运行方法资源边界：`SKILL.md`、直接加载的 `references/`、可选 `assets/` 和 `LICENSE` 一起构成完整单元。Plugin 只组合这些完整单元，不为不完整 Skill 补方法。
+Vision Harness 由十二个可独立使用的普通 Skill 与一个组合分发 Plugin 构成。每个普通 Skill 目录是自己的运行方法资源边界：`SKILL.md`、直接加载的 `references/` 和可选 `assets/` 构成完整方法单元；许可由仓库根部的 `LICENSE` 统一声明。Plugin 只组合这些完整单元，不为不完整 Skill 补方法。
 
 这些入口不是固定生命周期。用户可以直接请求任何一项工作；条件协作按任务发生，不要求兄弟 Skill 已安装。方法重要、内容长或常被共同使用，本身都不足以成为新入口。
 
 ## 源码、共享源与分发
 
 ```text
-.agents/skills/<name>/        # 完整 Skill 源目录，可单独复制
+skills/<name>/                # 唯一 Skill 目录，也是 Plugin 发现目录
+plugin.json                   # 仓库根即 portable Plugin 根
 skill-resources/              # 四份研发期共同方法单一来源
-plugins/vision-harness/       # 组合分发；skills/ 是完整目录生成物
-scripts/                      # 装配、完整性检查和 unittest
+scripts/                      # 共享资源同步、完整性检查和 unittest
 ```
 
-`skill-resources/` 只在研发时复用。装配将明确映射的内容逐字节物化到各源 Skill 的 `references/`，这些副本与源码一起提交，使 `.agents/skills/<name>/` 自身可迁移；副本不是第二个人工权威源。运行时不读取 `skill-resources/`、仓库根 METHOD/Spec/Eval、兄弟 Skill 或插件根 references。
+`skill-resources/` 只在研发时复用。同步脚本将明确映射的内容逐字节物化到各 Skill 的 `references/`，这些副本与源码一起提交，使 `skills/<name>/` 自身可迁移；副本不是第二个人工权威源。运行时不读取 `skill-resources/`、仓库根 METHOD/Spec/Eval 或兄弟 Skill。
 
-`plugins/vision-harness/plugin.json` 与 Plugin README 手工维护；这是 portable Agent Plugins 根清单，Skills 由固定的 `skills/` 目录发现，OpenAI 专用 interface 位于 `extensions["com.openai"].interface`。`plugins/vision-harness/skills/` 和 Plugin LICENSE 由装配生成。包内不再存在 `.codex-plugin` 清单或根级 `references/`。维护者入口 `method-evaluation`、历史材料和 Eval 留在研发仓库，不进入普通分发。
+仓库根的 `plugin.json` 与 `PLUGIN.md` 手工维护；这是 portable Agent Plugins 根清单，Skills 由固定的 `skills/` 目录发现，OpenAI 专用 interface 位于 `extensions["com.openai"].interface`。单独安装和 Plugin 使用同一份 Skill 目录，不再生成第二份完整目录。历史材料和 Eval 留在仓库，但不是 Plugin 的 Skill 入口。
 
 共享源映射固定为：
 
@@ -65,7 +65,6 @@ scripts/                      # 装配、完整性检查和 unittest
 | 单项整理与交付协调 | breakdown 的单项/协调模式 | Breakdown Spec 与对应本地方法 | breakdown、work-entry-routing |
 | Spec/Code/PR 独立审查 | review 的三对象模式 | `specs/review/spec.md` | work-entry-routing |
 | 关键假设、复杂度与证据复用 | 当前负责决定/实现/审查的入口按条件加载共享方法 | METHOD 的共同判断原则 | work-entry-routing |
-| 维护者行为评估 | method-evaluation（不分发） | 研发仓库 Eval 说明与案例 | 各既有 evals 目录 |
 
 这些 Eval 是既有验证设计和历史证据入口，不表示当前方法修订候选已执行新的 Agent 效果验收。静态设计修订不删除既有独立行为依据，也不将结构检查称为真实行为通过。
 
@@ -77,8 +76,8 @@ GitHub 承载动态工作事实；Spec 承载长期行为；Architecture 承载�
 
 ## 装配与完整性不变量
 
-`scripts/assemble_plugin.py` 先同步明确生成的共享副本与 LICENSE，验证源 Skill，再将完整目录递归复制到 staging，验证通过后替换生成区域。复制保留字节、相对层级和执行位，并排除缓存、虚拟环境与临时产物；失败的源/staging 校验不破坏现有包。
+`scripts/assemble_plugin.py` 同步明确生成的共享 reference，并验证根目录的 Plugin 和 Skill。没有第二份 Skill 打包目录。单 Skill 导出递归复制完整目录，保留字节、相对层级和执行位，并排除缓存与临时产物。
 
-`--check` 只读构造预期树，比较源副本、缺失/多余文件、内容和执行位。`--export-skill` 只导出一个普通 Skill，结果必须与 Plugin 中对应目录一致。`validate_skills.py --skill` 仅依赖给定目录；它验证结构封装，不证明宿主加载或 Agent 效果。
+`--check` 只读检查共享副本、Skill 完整性和 Plugin 清单。`--export-skill` 只导出一个普通 Skill，结果必须与 `skills/<name>/` 一致。`validate_skills.py --skill` 仅依赖给定目录；它验证结构封装，不证明宿主加载或 Agent 效果。
 
-普通 Skill 不包含运行脚本、Hook、MCP 或自定义子 Agent；装配仍保留未来 Skill 自身 `scripts/`、二进制 assets 和执行位的能力。复杂度、安全、授权和证据边界由方法执行，不建设自有调度器、状态库或审批平台。
+普通 Skill 不包含运行脚本、Hook、MCP 或自定义子 Agent；单 Skill 导出仍保留其自身 `scripts/`、二进制 assets 和执行位的能力。复杂度、安全、授权和证据边界由方法执行，不建设自有调度器、状态库或审批平台。

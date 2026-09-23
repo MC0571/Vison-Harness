@@ -1,14 +1,14 @@
 {
-  "name": "MC",
+  "name": "MC-SKILL",
   "interface": {
-    "displayName": "MC"
+    "displayName": "MC-SKILL"
   },
   "plugins": [
     {
       "name": "vision-harness",
       "source": {
         "source": "local",
-        "path": "./plugins/vision-harness"
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",

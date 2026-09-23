@@ -26,28 +26,28 @@ Vision Harness 可以作为一个 Codex Plugin 整包安装，也可以把单个
 
 ```bash
 codex plugin marketplace add MC0571/Vison-Harness --ref main
-codex plugin add vision-harness@MC
+codex plugin add vision-harness@MC-SKILL
 ```
 
-先添加上面的 marketplace；添加 `MC` 后，也可以改用 Codex UI，在该 marketplace 中选择 `vision-harness` 安装。安装完成后开启新会话，让宿主加载新的 Plugin。整包安装和维护命令见 [Plugin 使用说明](plugins/vision-harness/README.md)。
+先添加上面的 marketplace；添加 `MC-SKILL` 后，也可以改用 Codex UI，在该 marketplace 中选择 `vision-harness` 安装。安装完成后开启新会话，让宿主加载新的 Plugin。整包安装和维护命令见 [Plugin 使用说明](PLUGIN.md)。
 
 ### 安装指定 Skill
 
 第三方 `npx skills` 的默认范围是当前项目；下面的命令把全部 Vision Harness Skill 安装给 Codex：
 
 ```bash
-npx skills add https://github.com/MC0571/Vison-Harness/tree/main/plugins/vision-harness/skills --skill '*' -a codex
+npx skills add https://github.com/MC0571/Vison-Harness/tree/main/skills --skill '*' -a codex
 ```
 
 只安装指定 Skill 时使用 frontmatter 中的短名，例如：
 
 ```bash
-npx skills add https://github.com/MC0571/Vison-Harness/tree/main/plugins/vision-harness/skills --skill review breakdown -a codex
+npx skills add https://github.com/MC0571/Vison-Harness/tree/main/skills --skill review breakdown -a codex
 ```
 
 需要用户级安装时加 `-g`。不要使用 `--all`，它会把发现的全部 Skill 安装到全部 Agent。`--skill` 使用 `SKILL.md` frontmatter 的短名（例如 `review`），不是安装界面显示的 `Vision-Harness: Review`。每个 Skill 目录都包含完整方法资源；`npx` 不需要安装本仓库的 npm 包，也不需要 Python。安装后开启新会话。
 
-遇到宿主不支持 Plugin 或 `npx skills` 时，可按 [单 Skill 复制](plugins/vision-harness/README.md#单-skill-复制) 手动复制完整目录。这是备选安装路径，不需要 Python。
+遇到宿主不支持 Plugin 或 `npx skills` 时，可按 [单 Skill 复制](PLUGIN.md#单-skill-复制) 手动复制完整目录。这是备选安装路径，不需要 Python。
 
 ### 工作入口
 
@@ -66,7 +66,7 @@ npx skills add https://github.com/MC0571/Vison-Harness/tree/main/plugins/vision-
 | 系统偏离诊断与限定纠偏 | project-convergence |
 | Agent 指引与 reviewer 配置 | agent-instructions |
 
-架构和维护者装配、检查说明见 [产品架构](ARCHITECTURE.md) 与 [Plugin 使用说明的研发装配与检查](plugins/vision-harness/README.md#研发装配与检查)。
+架构和维护者装配、检查说明见 [产品架构](ARCHITECTURE.md) 与 [Plugin 使用说明的研发装配与检查](PLUGIN.md#研发装配与检查)。
 
 ## 从一个模糊想法开始
 
