@@ -26,10 +26,10 @@ Vision Harness 可以作为一个 Codex Plugin 整包安装，也可以把单个
 
 ```bash
 codex plugin marketplace add MC0571/Vison-Harness --ref main
-codex plugin add vision-harness@MC
+codex plugin add vision-harness@MC-SKILL
 ```
 
-先添加上面的 marketplace；添加 `MC` 后，也可以改用 Codex UI，在该 marketplace 中选择 `vision-harness` 安装。安装完成后开启新会话，让宿主加载新的 Plugin。整包安装和维护命令见 [Plugin 使用说明](PLUGIN.md)。
+先添加上面的 marketplace；添加 `MC-SKILL` 后，也可以改用 Codex UI，在该 marketplace 中选择 `vision-harness` 安装。安装完成后开启新会话，让宿主加载新的 Plugin。整包安装和维护命令见 [Plugin 使用说明](PLUGIN.md)。
 
 ### 安装指定 Skill
 

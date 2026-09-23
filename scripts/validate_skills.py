@@ -379,14 +379,14 @@ def validate_manifests(root: Path = ROOT) -> None:
         raise ValidationError(f"invalid marketplace manifest: {marketplace_path}: {exc}") from exc
     if not isinstance(marketplace, dict):
         raise ValidationError(f"marketplace manifest must be an object: {marketplace_path}")
-    if marketplace.get("name") != "MC":
-        raise ValidationError(f"marketplace name must be 'MC': {marketplace_path}")
+    if marketplace.get("name") != "MC-SKILL":
+        raise ValidationError(f"marketplace name must be 'MC-SKILL': {marketplace_path}")
     marketplace_interface = marketplace.get("interface")
     if (
         not isinstance(marketplace_interface, dict)
-        or marketplace_interface.get("displayName") != "MC"
+        or marketplace_interface.get("displayName") != "MC-SKILL"
     ):
-        raise ValidationError(f"marketplace display name must be 'MC': {marketplace_path}")
+        raise ValidationError(f"marketplace display name must be 'MC-SKILL': {marketplace_path}")
     plugins = marketplace.get("plugins")
     if not isinstance(plugins, list) or any(not isinstance(item, dict) for item in plugins):
         raise ValidationError(f"marketplace plugins must be an array of objects: {marketplace_path}")

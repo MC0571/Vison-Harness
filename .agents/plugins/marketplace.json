@@ -1,7 +1,7 @@
 {
-  "name": "MC",
+  "name": "MC-SKILL",
   "interface": {
-    "displayName": "MC"
+    "displayName": "MC-SKILL"
   },
   "plugins": [
     {

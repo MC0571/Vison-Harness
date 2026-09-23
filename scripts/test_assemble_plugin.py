@@ -146,6 +146,8 @@ class AssemblyTests(unittest.TestCase):
         marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["$schema"], VALIDATOR.PORTABLE_SCHEMA)
         self.assertNotIn("skills", manifest)
+        self.assertEqual(marketplace["name"], "MC-SKILL")
+        self.assertEqual(marketplace["interface"]["displayName"], "MC-SKILL")
         self.assertEqual(marketplace["plugins"][0]["source"]["path"], "./")
 
     def test_existing_eval_contracts_and_removed_entries_are_preserved(self) -> None:

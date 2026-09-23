@@ -29,12 +29,12 @@ Plugin 整包安装和下方的散装 Skill 安装二选一，避免同一 Skill
 
 ```bash
 codex plugin marketplace add MC0571/Vison-Harness --ref main
-codex plugin add vision-harness@MC
+codex plugin add vision-harness@MC-SKILL
 ```
 
-先添加上面的 marketplace；添加 `MC` 后，也可以改用 Codex UI，在该 marketplace 中选择 `vision-harness` 安装。安装完成后开启新会话，让宿主加载新的 Plugin。
+先添加上面的 marketplace；添加 `MC-SKILL` 后，也可以改用 Codex UI，在该 marketplace 中选择 `vision-harness` 安装。安装完成后开启新会话，让宿主加载新的 Plugin。
 
-如果以前从旧的 `vision-harness@personal` 安装，先确认 `vision-harness@MC` 已成功安装，再按需要移除旧的 Vision Harness 副本。只处理这个旧副本，不要删除整个 `personal` marketplace，因为其他 Plugin 可能仍在使用它。
+如果以前从 `vision-harness@MC` 或 `vision-harness@personal` 安装，先确认 `vision-harness@MC-SKILL` 已成功安装，再按需要移除旧的 Vision Harness 副本。只处理旧副本，不要删除可能仍供其他 Plugin 使用的 marketplace。
 
 Plugin 根目录的 `plugin.json` 使用 Agent Plugins 1.0 清单（`$schema` 为 `https://agent-plugins.org/schemas/1.0.0/plugin.schema.json`），插件名是 `vision-harness`；OpenAI 安装界面元数据位于 `extensions.com.openai.interface`，Skill 目录为 `./skills/`。每个 Skill 目录仍然自包含完整方法资源。
 
@@ -72,7 +72,7 @@ npx skills add https://github.com/MC0571/Vison-Harness/tree/main/skills --skill 
 
 ```bash
 codex plugin marketplace add /path/to/Vison-Harness
-codex plugin add vision-harness@MC
+codex plugin add vision-harness@MC-SKILL
 ```
 
 首次准备开发环境时，在仓库本地创建并启用虚拟环境，然后安装固定开发依赖：

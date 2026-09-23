@@ -26,10 +26,10 @@ Run this in the Codex CLI:
 
 ```bash
 codex plugin marketplace add MC0571/Vison-Harness --ref main
-codex plugin add vision-harness@MC
+codex plugin add vision-harness@MC-SKILL
 ```
 
-Add the marketplace above first; after adding `MC`, you can also use the Codex UI to select `vision-harness` in that marketplace. After installation, start a new session so the host loads the new Plugin. See [Plugin usage instructions](PLUGIN.md) for package installation and maintenance commands.
+Add the marketplace above first; after adding `MC-SKILL`, you can also use the Codex UI to select `vision-harness` in that marketplace. After installation, start a new session so the host loads the new Plugin. See [Plugin usage instructions](PLUGIN.md) for package installation and maintenance commands.
 
 ### Install selected Skills
 
