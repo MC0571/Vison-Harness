@@ -8,7 +8,7 @@
       "name": "vision-harness",
       "source": {
         "source": "local",
-        "path": "./plugins/vision-harness"
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",
