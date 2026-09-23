@@ -1,7 +1,6 @@
 ---
 name: project-onboarding
 description: Use when a new, existing, or partially adopting project needs its real adoption gaps identified and the smallest authorized integration applied. Reuses equivalent project facts and returns a usable entry or a justified no-change result, not a new document suite.
-license: MIT
 ---
 
 # Vision-Harness: Project Onboarding

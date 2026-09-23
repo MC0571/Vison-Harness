@@ -1,7 +1,6 @@
 ---
 name: review
 description: Use when a fixed Spec, implementation, or PR needs an independent candidate-bound judgment. Separates requirement fidelity from engineering quality, challenges potential findings with counterevidence, and returns actionable defects or a clean limited result without modifying a review-only candidate.
-license: MIT
 ---
 
 # Vision-Harness: Review

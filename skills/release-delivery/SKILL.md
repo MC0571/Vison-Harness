@@ -1,7 +1,6 @@
 ---
 name: release-delivery
 description: Use for an explicitly authorized package, PR, merge, release, deployment, or work closure. Applies action-specific checks, observes actual outcomes, and handles partial success with bounded recovery; building, merging, publishing, and closing never automatically authorize each other.
-license: MIT
 ---
 
 # Vision-Harness: Release Delivery

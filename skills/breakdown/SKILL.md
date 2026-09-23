@@ -1,7 +1,6 @@
 ---
 name: breakdown
 description: Use for whole-product or rolling planning, shaping one work item, or coordinating authorized delivery. Chooses decision work, behavioral slices, or migration batches as appropriate; returns a usable map, bounded item, coordination plan, or integrated candidate without making these modes mandatory phases.
-license: MIT
 ---
 
 # Vision-Harness: Breakdown

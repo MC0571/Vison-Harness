@@ -1,7 +1,6 @@
 ---
 name: technical-design
 description: Use when confirmed work needs a safe implementation path, module or interface design, architecture-impact decision, bounded investigation, or durable ADR. Designs only the affected boundaries and explains trade-offs; simple reuse and no-ADR outcomes are normal.
-license: MIT
 ---
 
 # Vision-Harness: Technical Design

@@ -1,6 +1,6 @@
 # Vision Harness Plugin
 
-0.4.2 组合分发十二个职责明确、资源自包含的普通 Skill。每个 `skills/<name>/` 都有自己的方法 references、可选 assets 和 LICENSE；Plugin 没有根级方法 references，也不负责补齐不完整 Skill。
+0.4.2 组合分发十二个职责明确、方法资源自包含的普通 Skill。每个 `skills/<name>/` 都有自己的方法 references 和可选 assets；许可由仓库根部 `LICENSE` 统一声明。Plugin 没有根级方法 references，也不负责补齐不完整 Skill。
 
 ## 工作入口
 
@@ -66,7 +66,7 @@ npx skills add https://github.com/MC0571/Vison-Harness/tree/main/skills --skill 
 
 ## 研发装配与检查
 
-编辑 `skills/<name>/` 中的人工方法文件；共同方法只编辑 `skill-resources/` 的四份源。不要手改各 Skill 中由同步脚本生成的共同副本与 LICENSE。
+编辑 `skills/<name>/` 中的人工方法文件；共同方法只编辑 `skill-resources/` 的四份源。不要手改各 Skill 中由同步脚本生成的共同副本。
 
 维护者若需从本地分支或提交安装，先检出目标版本，再在仓库根执行：
 
@@ -89,7 +89,7 @@ python3 -m pip install -r requirements-dev.txt
 python3 scripts/assemble_plugin.py --check
 ```
 
-若检查发现需要同步共享副本或许可证，再运行：
+若检查发现需要同步共享副本，再运行：
 
 ```bash
 python3 scripts/assemble_plugin.py

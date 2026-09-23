@@ -1,7 +1,6 @@
 ---
 name: vision-management
 description: Use when users need to form, inspect, or revise a project vision through real dialogue. Separates desired outcomes from proposed solutions, resolves decision-changing ambiguities, and optionally persists confirmed decisions without inventing user choices or implementation work.
-license: MIT
 ---
 
 # Vision-Harness: Vision Management

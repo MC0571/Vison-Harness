@@ -2,7 +2,7 @@
 
 ## 设计目标
 
-Vision Harness 由十二个可独立使用的普通 Skill 与一个组合分发 Plugin 构成。每个普通 Skill 目录是自己的运行方法资源边界：`SKILL.md`、直接加载的 `references/`、可选 `assets/` 和 `LICENSE` 一起构成完整单元。Plugin 只组合这些完整单元，不为不完整 Skill 补方法。
+Vision Harness 由十二个可独立使用的普通 Skill 与一个组合分发 Plugin 构成。每个普通 Skill 目录是自己的运行方法资源边界：`SKILL.md`、直接加载的 `references/` 和可选 `assets/` 构成完整方法单元；许可由仓库根部的 `LICENSE` 统一声明。Plugin 只组合这些完整单元，不为不完整 Skill 补方法。
 
 这些入口不是固定生命周期。用户可以直接请求任何一项工作；条件协作按任务发生，不要求兄弟 Skill 已安装。方法重要、内容长或常被共同使用，本身都不足以成为新入口。
 
@@ -76,7 +76,7 @@ GitHub 承载动态工作事实；Spec 承载长期行为；Architecture 承载�
 
 ## 装配与完整性不变量
 
-`scripts/assemble_plugin.py` 同步明确生成的共享 reference 与 LICENSE，并验证根目录的 Plugin 和 Skill。没有第二份 Skill 打包目录。单 Skill 导出递归复制完整目录，保留字节、相对层级和执行位，并排除缓存与临时产物。
+`scripts/assemble_plugin.py` 同步明确生成的共享 reference，并验证根目录的 Plugin 和 Skill。没有第二份 Skill 打包目录。单 Skill 导出递归复制完整目录，保留字节、相对层级和执行位，并排除缓存与临时产物。
 
 `--check` 只读检查共享副本、Skill 完整性和 Plugin 清单。`--export-skill` 只导出一个普通 Skill，结果必须与 `skills/<name>/` 一致。`validate_skills.py --skill` 仅依赖给定目录；它验证结构封装，不证明宿主加载或 Agent 效果。
 

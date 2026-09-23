@@ -1,7 +1,6 @@
 ---
 name: spec-development
 description: Use when confirmed behavior needs a durable contract formed or revised, or when this work must decide that the existing contract is sufficient. An independent gap or sufficiency judgment on a fixed candidate belongs to review; a missing Spec file alone does not block implementation, and this skill does not implement code.
-license: MIT
 ---
 
 # Vision-Harness: Spec Development

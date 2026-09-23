@@ -1,7 +1,6 @@
 ---
 name: using-vision-harness
 description: Use only when a project task lacks enough recoverable context to identify its target, effective scope, authorization, or next step. Skip it when the user already supplied the object, scope, and implementation authority; it is not a mandatory router or implementation prerequisite.
-license: MIT
 ---
 
 # Vision-Harness: Using Vision Harness

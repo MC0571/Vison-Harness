@@ -1,7 +1,6 @@
 ---
 name: tdd-development
 description: Use for authorized implementation, defect repair, or refactor with basic verification, or for bounded diagnosis. Implement directly only when target, scope, authorization, and confirmed semantics are sufficient; honor project-required Spec and keep diagnosis-only work read-only.
-license: MIT
 ---
 
 # Vision-Harness: TDD Development

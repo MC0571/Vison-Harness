@@ -1,7 +1,6 @@
 ---
 name: project-convergence
 description: Use for a bounded phase or capability review, or to investigate a specific drift signal. Builds an intent-to-implementation map, finds missing, partial, contradictory, or ungrounded work, and offers or applies authorized limited corrections without requiring a pre-known defect or rewriting the whole project.
-license: MIT
 ---
 
 # Vision-Harness: Project Convergence

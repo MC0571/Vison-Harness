@@ -39,7 +39,7 @@ def _generated_drift(root: Path) -> list[str]:
     drift = []
     for name in SOURCE_SKILLS:
         skill = root / "skills" / name
-        targets = {"LICENSE": root / "LICENSE"}
+        targets = {}
         for filename, recipients in SHARED_RESOURCE_MAP.items():
             target = skill / "references" / filename
             if name in recipients:
@@ -68,7 +68,6 @@ def assemble(root: Path = ROOT) -> None:
                 shutil.copy2(root / "skill-resources" / filename, target)
             elif target.exists():
                 target.unlink()
-        shutil.copy2(root / "LICENSE", skill / "LICENSE")
     validator.validate_package(root)
     print(f"synchronized {len(SOURCE_SKILLS)} self-contained Skills: {root / 'skills'}")
 

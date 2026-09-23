@@ -1,7 +1,6 @@
 ---
 name: change-verification
 description: Use to execute checks, reuse evidence, or audit a precise candidate against a concrete promise. Derives discriminating checks from failure modes and observation points, reports scoped outcomes and uncovered areas, and does not repair the candidate or inflate low-level checks into whole-product completion.
-license: MIT
 ---
 
 # Vision-Harness: Change Verification

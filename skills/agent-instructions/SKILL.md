@@ -1,7 +1,6 @@
 ---
 name: agent-instructions
 description: Use when project Agent guidance, review rules, or host execution configuration needs a scoped improvement. Turns durable project differences into trigger-action-boundary instructions, reuses canonical sources, and distinguishes file existence, loading, and actual review outcomes.
-license: MIT
 ---
 
 # Vision-Harness: Agent Instructions

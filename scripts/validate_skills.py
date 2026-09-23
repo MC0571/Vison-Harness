@@ -130,10 +130,6 @@ def _validate_metadata(metadata: dict, skill: Path) -> None:
     if not isinstance(description, str) or not description.strip() or len(description) > 1024:
         raise ValidationError(f"invalid Skill description in {skill}")
 
-    license_name = metadata.get("license")
-    if license_name != "MIT":
-        raise ValidationError(f"license must be 'MIT' in {skill}")
-
     compatibility = metadata.get("compatibility")
     if compatibility is not None and (
         not isinstance(compatibility, str) or not compatibility or len(compatibility) > 500
@@ -250,7 +246,7 @@ def _validate_links(path: Path, skill: Path) -> set[Path]:
     return linked
 
 
-def validate_skill(skill: Path, *, expected_license: bytes | None = None) -> None:
+def validate_skill(skill: Path) -> None:
     skill = Path(skill)
     if not skill.is_dir():
         raise ValidationError(f"Skill directory does not exist: {skill}")
@@ -263,12 +259,6 @@ def validate_skill(skill: Path, *, expected_license: bytes | None = None) -> Non
     _validate_metadata(metadata, skill)
     if not body.strip():
         raise ValidationError(f"empty Skill instructions: {skill_file}")
-
-    license_file = skill / "LICENSE"
-    if not license_file.is_file():
-        raise ValidationError(f"missing LICENSE: {skill}")
-    if expected_license is not None and license_file.read_bytes() != expected_license:
-        raise ValidationError(f"Skill LICENSE differs from repository LICENSE: {license_file}")
 
     direct_links = _validate_links(skill_file, skill)
     for path in skill.rglob("*.md"):
@@ -305,11 +295,12 @@ def validate_source(root: Path = ROOT) -> None:
     license_path = root / "LICENSE"
     if not license_path.is_file():
         raise ValidationError(f"missing repository LICENSE: {license_path}")
-    license_bytes = license_path.read_bytes()
     shared_names = set(SHARED_RESOURCE_MAP)
     for name in SOURCE_SKILLS:
         skill = skills_root / name
-        validate_skill(skill, expected_license=license_bytes)
+        validate_skill(skill)
+        if (skill / "LICENSE").exists() or "license" in _frontmatter(skill / "SKILL.md")[0]:
+            raise ValidationError(f"Skill-level license duplicates repository LICENSE: {skill}")
         actual_shared = {
             path.name
             for path in (skill / "references").glob("*.md")

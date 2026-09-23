@@ -46,8 +46,12 @@ class AssemblyTests(unittest.TestCase):
             EXPECTED_SKILLS,
         )
         self.assertTrue((ROOT / "plugin.json").is_file())
+        self.assertTrue((ROOT / "LICENSE").is_file())
         self.assertFalse((ROOT / "plugins/vision-harness/skills").exists())
         self.assertFalse((ROOT / ".agents/skills").exists())
+        for name in EXPECTED_SKILLS:
+            self.assertFalse((ROOT / "skills" / name / "LICENSE").exists())
+            self.assertNotIn("license:", (ROOT / "skills" / name / "SKILL.md").read_text(encoding="utf-8"))
         for name in REMOVED_ENTRIES:
             self.assertFalse((ROOT / "skills" / name).exists())
 
@@ -91,7 +95,7 @@ class AssemblyTests(unittest.TestCase):
             root = copy_repo(Path(temp))
             outside = Path(temp) / "outside.txt"
             outside.write_bytes(b"keep me\n")
-            target = root / "skills/breakdown/LICENSE"
+            target = root / "skills/breakdown/references/common-rules.md"
             target.unlink()
             try:
                 os.symlink(outside, target)
