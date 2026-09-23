@@ -312,7 +312,7 @@ def validate_source(root: Path = ROOT) -> None:
     root = Path(root)
     skills_root = root / ".agents" / "skills"
     actual = _skill_dirs(skills_root)
-    expected = set(SOURCE_SKILLS) | {"method-evaluation"}
+    expected = set(SOURCE_SKILLS)
     if actual != expected:
         raise ValidationError(
             f"source Skill set differs: missing={sorted(expected - actual)}, extra={sorted(actual - expected)}"
@@ -451,9 +451,9 @@ def validate_package(root: Path = ROOT) -> None:
         source = root / ".agents" / "skills" / name
         if not _same_tree(source, packaged):
             raise ValidationError(f"source and package Skill directories differ: {name}")
-    for name in REMOVED_ENTRIES | {"method-evaluation"}:
+    for name in REMOVED_ENTRIES:
         if (skills_root / name).exists():
-            raise ValidationError(f"maintainer or removed Skill leaked into package: {name}")
+            raise ValidationError(f"removed Skill leaked into package: {name}")
 
     validate_manifests(root)
 

@@ -71,9 +71,9 @@ class AssemblyTests(unittest.TestCase):
             path.parent.name
             for path in (ROOT / "plugins/vision-harness/skills").glob("*/SKILL.md")
         }
-        self.assertEqual(source, EXPECTED_SKILLS | {"method-evaluation"})
+        self.assertEqual(source, EXPECTED_SKILLS)
         self.assertEqual(package, EXPECTED_SKILLS)
-        for name in REMOVED_ENTRIES | {"method-evaluation"}:
+        for name in REMOVED_ENTRIES:
             self.assertFalse((ROOT / "plugins/vision-harness/skills" / name).exists())
 
     def test_shared_resources_follow_explicit_mapping(self) -> None:
@@ -305,13 +305,11 @@ class AssemblyTests(unittest.TestCase):
                 shutil.move(exported, moved)
                 VALIDATOR.validate_skill(moved)
 
-    def test_export_rejects_unknown_maintainer_nonempty_and_dangerous_targets(self) -> None:
+    def test_export_rejects_unknown_nonempty_and_dangerous_targets(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "exports"
             with self.assertRaises(ValueError):
                 ASSEMBLER.export_skill("unknown", output, ROOT)
-            with self.assertRaises(ValueError):
-                ASSEMBLER.export_skill("method-evaluation", output, ROOT)
             output.mkdir()
             target = output / "breakdown"
             target.mkdir()

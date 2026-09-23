@@ -19,7 +19,7 @@
 | 系统级偏离与限定纠偏 | `project-convergence` |
 | Agent 指引与 reviewer 配置 | `agent-instructions` |
 
-这些入口不是固定流程。明确的实施、审查或单项整理可以直接调用；`using-vision-harness` 不是必经路由器。维护者 Skill `method-evaluation` 不在本包中。
+这些入口不是固定流程。明确的实施、审查或单项整理可以直接调用；`using-vision-harness` 不是必经路由器。
 
 ## 安装整个 Plugin
 

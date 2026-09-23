@@ -253,7 +253,7 @@ def _unsafe_output(output: Path, root: Path) -> bool:
 
 def export_skill(name: str, output: Path, root: Path = ROOT) -> Path:
     root = Path(root).resolve()
-    if name == "method-evaluation" or name not in SOURCE_SKILLS:
+    if name not in SOURCE_SKILLS:
         raise ValueError(f"Skill is not exportable: {name}")
     output = Path(output)
     if _unsafe_output(output, root):
